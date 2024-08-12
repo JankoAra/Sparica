@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-object HomePath
+data class BudgetDashboardRoute(val budgetID:Int)
 
 @Serializable
 data class SecondPath(val p: String?, val i: Int = 0)
@@ -16,3 +16,6 @@ data class SpendingDetailsRoute(val spending: Spending)
 
 @Serializable
 object ExchangeRateTableRoute
+
+@Serializable
+object BudgetsMainScreenRoute

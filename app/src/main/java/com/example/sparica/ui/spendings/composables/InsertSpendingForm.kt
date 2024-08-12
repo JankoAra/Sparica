@@ -48,7 +48,7 @@ import com.example.sparica.viewmodels.SpendingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel()) {
+fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel(), budgetID:Int) {
     var description by rememberSaveable { mutableStateOf("") }
     var priceString by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf<SpendingCategory?>(null) }
@@ -173,7 +173,8 @@ fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel()) {
                 price = priceString.toDoubleOrNull() ?: 0.0,
                 category = selectedCategory,
                 subcategory = selectedSubcategory,
-                currency = selectedCurrency
+                currency = selectedCurrency,
+                budgetID = budgetID
             )
             spendingViewModel.insert(spending)
         }) {

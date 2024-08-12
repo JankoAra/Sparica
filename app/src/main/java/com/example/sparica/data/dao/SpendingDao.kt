@@ -22,7 +22,7 @@ interface SpendingDao {
     @Query("Select * from spendings order by id desc")
     fun getAllSpendings():Flow<List<Spending>>
 
-    @Query("Select * from spendings where budgetID = :budgetID")
+    @Query("Select * from spendings where budgetID = :budgetID order by id desc")
     fun getAllSpendingsForBudget(budgetID:Int):Flow<List<Spending>>
 
     @Query("Select * from spendings where id=:id")

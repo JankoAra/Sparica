@@ -10,11 +10,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sparica.data.models.Spending
+import com.example.sparica.ui.budgets.composables.BudgetsMainScreen
 import com.example.sparica.ui.composables.SecondPage
 import com.example.sparica.ui.exchange.composables.ExchangeRateTable
 import com.example.sparica.ui.spendings.composables.SingleBudgetScreen
 import com.example.sparica.ui.spendings.composables.SpendingDetailsScreen
 import com.example.sparica.util.CustomNavTypes
+import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 import kotlin.reflect.typeOf
 
@@ -22,14 +24,18 @@ import kotlin.reflect.typeOf
 @Composable
 fun MyNavHost() {
     val navController = rememberNavController()
-    val spendingViewModel: SpendingViewModel = viewModel();
-    NavHost(navController = navController,
-        startDestination = HomePath,
+    val spendingViewModel: SpendingViewModel = viewModel<SpendingViewModel>()
+    val budgetViewModel: BudgetViewModel = viewModel<BudgetViewModel>()
+    NavHost(
+        navController = navController,
+        startDestination = BudgetsMainScreenRoute,
         enterTransition = { fadeIn(animationSpec = tween(0)) },
-        exitTransition = { fadeOut(animationSpec = tween(0)) }) {
+        exitTransition = { fadeOut(animationSpec = tween(0)) }
+    ) {
         // Novi nacin rutiranja putem klasa kao ruta, beta verzija
-        composable<HomePath> {
-            SingleBudgetScreen(navController, spendingViewModel)
+        composable<BudgetDashboardRoute> {
+            val args = it.toRoute<BudgetDashboardRoute>()
+            SingleBudgetScreen(navController, spendingViewModel, args.budgetID)
         }
         composable<SecondPath> {
             val args = it.toRoute<SecondPath>()
@@ -43,6 +49,9 @@ fun MyNavHost() {
         }
         composable<ExchangeRateTableRoute> {
             ExchangeRateTable(navController, spendingViewModel)
+        }
+        composable<BudgetsMainScreenRoute> {
+            BudgetsMainScreen(navController, budgetViewModel)
         }
     }
 }

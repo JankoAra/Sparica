@@ -1,0 +1,121 @@
+package com.example.sparica.ui.budgets.composables
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.sparica.data.models.Budget
+import com.example.sparica.navigation.BudgetDashboardRoute
+import com.example.sparica.ui.util.MyTopAppBar
+import com.example.sparica.viewmodels.BudgetViewModel
+
+@Composable
+fun BudgetsMainScreen(
+    navController: NavController,
+    budgetViewModel: BudgetViewModel
+) {
+    val allBudgets by budgetViewModel.allBudgets.collectAsState(emptyList())
+    var showNamingDialog by rememberSaveable { mutableStateOf(false) }
+    var newBudgetName by rememberSaveable { mutableStateOf("") }
+    Scaffold(
+        topBar = {
+            MyTopAppBar(
+                onGoBack = {},
+                showBackButton = false,
+                goToExchangeRate = { })
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    showNamingDialog = true
+                },
+                modifier = Modifier
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary, // Background color
+                contentColor = Color.White // Icon color
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add")
+            }
+        }
+    ) {
+        if (allBudgets.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+            ) {
+                Text(text = "No budgets are created. Create one now!")
+            }
+        } else {
+            LazyColumn(modifier = Modifier.padding(it)) {
+                items(allBudgets) {
+                    BudgetListItem(budget = it) {
+                        navController.navigate(BudgetDashboardRoute(it.id))
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+        }
+        if (showNamingDialog) {
+            AlertDialog(
+                onDismissRequest = { showNamingDialog = false },
+                title = { Text("Enter a Name") },
+                text = {
+                    OutlinedTextField(
+                        value = newBudgetName,
+                        onValueChange = { newBudgetName = it },
+                        label = { Text("Name") }
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            // Handle the confirmed name here
+                            val newBudget = Budget(name = newBudgetName)
+                            showNamingDialog = false
+                            newBudgetName = ""
+                            budgetViewModel.insertBudget(newBudget)
+                        }
+                    ) {
+                        Text("Create")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showNamingDialog = false
+                        newBudgetName = ""
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+    }
+
+}

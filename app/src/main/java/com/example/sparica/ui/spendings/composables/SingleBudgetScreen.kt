@@ -34,26 +34,32 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sparica.SparicaApp
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.navigation.BudgetsMainScreenRoute
 import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
 import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.spendingsToCSV
 import com.example.sparica.ui.util.MyTopAppBar
+import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 import java.time.LocalDateTime
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleBudgetScreen(
     navController: NavHostController,
-    spendingViewModel: SpendingViewModel = viewModel()
+    spendingViewModel: SpendingViewModel = viewModel(),
+    budgetID: Int
 ) {
+    spendingViewModel.getSpendingsForBudget(budgetID)
+
+    val budgetViewModel = viewModel<BudgetViewModel>()
+    val allBudgets by budgetViewModel.allBudgets.collectAsState(emptyList())
+
     // Collect spendings data as a state
     val spendings by spendingViewModel.allSpendings.collectAsState(emptyList())
 
     // State to hold the converted total
-
     var selectedCurrency by rememberSaveable { mutableStateOf<Currency>(Currency.RSD) }
     var totalPrice by rememberSaveable {
         mutableDoubleStateOf(0.0)
@@ -120,7 +126,7 @@ fun SingleBudgetScreen(
             }
             // Insert the form as the first item
             item {
-                InsertSpendingForm(spendingViewModel)
+                InsertSpendingForm(spendingViewModel, budgetID)
                 Spacer(modifier = Modifier.height(16.dp))
             }
             // Insert the title for spendings
@@ -168,6 +174,15 @@ fun SingleBudgetScreen(
                     }
                 }
             }
+
+            item {
+                Button(onClick = {
+                    budgetViewModel.deleteBudget(allBudgets[allBudgets.indexOfFirst { it.id == budgetID }])
+                    navController.navigate(BudgetsMainScreenRoute)
+                }) {
+                    Text(text = "Delete budget")
+                }
+            }
         }
     }
 
@@ -181,9 +196,3 @@ private fun LocalDateTime.noSpaces(): String {
 }
 
 
-@Preview
-@Composable
-fun SingleBudgetScreenPreview() {
-    val navController = rememberNavController()
-    SingleBudgetScreen(navController = navController)
-}

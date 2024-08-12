@@ -21,9 +21,11 @@ import com.example.sparica.data.repositories.SpendingSubcategoryRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SpendingViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,6 +38,7 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
     //StateFlow cuva samo jednu vrednost (.value)
     //Obavestava svaki put kada promeni stanje
     private val _allSpendings = MutableStateFlow<List<Spending>>(emptyList())
+
     //allSpendings je javno polje sa get metodom koja vraca mutable _allSpendings StateFlow, ali ne moze da ga menja
     val allSpendings: StateFlow<List<Spending>> get() = _allSpendings
 
@@ -98,6 +101,17 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         }
 
 
+    }
+
+    fun getSpendingsForBudget(budgetID: Int) {
+        viewModelScope.launch {
+            spendingRepository.getAllSpendingsForBudgetStream(budgetID).collect { newSpendings ->
+                _allSpendings.update {
+                    newSpendings
+                }
+            }
+
+        }
     }
 
     fun insert(spending: Spending) {

@@ -7,10 +7,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.sparica.data.dao.BudgetDao
 import com.example.sparica.data.dao.ExchangeRateDao
 import com.example.sparica.data.dao.SpendingCategoryDao
 import com.example.sparica.data.dao.SpendingDao
 import com.example.sparica.data.dao.SpendingSubcategoryDao
+import com.example.sparica.data.database.migrations.MIGRATION_6_7
+import com.example.sparica.data.database.migrations.MIGRATION_7_8
+import com.example.sparica.data.models.Budget
 import com.example.sparica.data.models.ExchangeRate
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
@@ -21,8 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Spending::class, SpendingCategory::class, SpendingSubcategory::class, ExchangeRate::class],
-    version = 6,
+    entities = [Spending::class, SpendingCategory::class, SpendingSubcategory::class, ExchangeRate::class, Budget::class],
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -31,6 +35,7 @@ abstract class SparicaDatabase : RoomDatabase() {
     abstract fun spendingCategoryDao(): SpendingCategoryDao
     abstract fun spendingSubcategoryDao(): SpendingSubcategoryDao
     abstract fun exchangeRateDao(): ExchangeRateDao
+    abstract fun budgetDao(): BudgetDao
 
     companion object SparicaDatabaseProvider {
         @Volatile
@@ -41,7 +46,7 @@ abstract class SparicaDatabase : RoomDatabase() {
                 Room.databaseBuilder(context, SparicaDatabase::class.java, "sparica_database")
                     //.fallbackToDestructiveMigration()
                     //.addCallback(DatabaseCallback(scope))
-                    //.addMigrations(MIGRATION_4_5)
+                    .addMigrations(MIGRATION_6_7, MIGRATION_7_8)
                     .build()
                     .also {
                         Instance = it

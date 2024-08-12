@@ -2,6 +2,8 @@ package com.example.sparica.data.models
 
 import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Contextual
@@ -12,7 +14,16 @@ import java.time.LocalDateTime
 
 @Serializable
 @Parcelize
-@Entity(tableName = "spendings")
+@Entity(
+    tableName = "spendings",
+    foreignKeys = [ForeignKey(
+        entity = Budget::class,
+        parentColumns = ["id"],
+        childColumns = ["budgetID"],
+        onDelete = ForeignKey.CASCADE // Optionally, delete subcategories if the category is deleted
+    )],
+    indices = [Index(value = ["budgetID"])]
+)
 data class Spending(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val description: String,
@@ -44,11 +55,11 @@ data class Spending(
         return "Spending(id=$id, description='$description', price=${getFormatedPrice()}, category=$category, subcategory=$subcategory, date=$date)"
     }
 
-    fun asCsv():String{
+    fun asCsv(): String {
         return "$id,$description,$price,$currency,$category,$subcategory,${date.toLocalDate()},${date.toLocalTime()}"
     }
 
-    companion object{
+    companion object {
         fun csvHeader(): String {
             return "id,description,price,currency,category,subcategory,date,time"
         }

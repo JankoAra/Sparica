@@ -14,7 +14,7 @@ class SpendingRepositoryImpl(private val spendingDao: SpendingDao) : SpendingRep
     }
 
     override fun getAllSpendingsForBudgetStream(budgetID: Int): Flow<List<Spending>> {
-        return getAllSpendingsForBudgetStream(budgetID)
+        return spendingDao.getAllSpendingsForBudget(budgetID)
     }
 
     override suspend fun insertSpending(spending: Spending) {
