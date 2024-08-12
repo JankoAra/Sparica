@@ -36,6 +36,7 @@ import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
+import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.spendingsToCSV
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.viewmodels.SpendingViewModel
@@ -77,7 +78,7 @@ fun SingleBudgetScreen(
         }.sumOf { it.price }
         //println("TOTAL PRICE2: $totalPrice")
         totalSpending = totalSpending.copy(price = totalPrice, currency = selectedCurrency)
-        println(totalSpending.toString())
+        //println(totalSpending.toString())
     }
 
 
@@ -105,9 +106,16 @@ fun SingleBudgetScreen(
                 Button(onClick = {
                     val timestamp =
                         LocalDateTime.now().noSpaces()
-                    app.createFile("report$timestamp.csv") { spendingsToCSV(spendings) }
+                    ReportUtils.createFile("report$timestamp.csv", spendingsToCSV(spendings))
                 }) {
-                    Text(text = "Generate file")
+                    Text(text = "Generate CSV")
+                }
+                Button(onClick = {
+                    val timestamp =
+                        LocalDateTime.now().noSpaces()
+                    ReportUtils.createFile("report$timestamp.pdf", spendingsToCSV(spendings))
+                }) {
+                    Text(text = "Generate PDF")
                 }
             }
             // Insert the form as the first item
@@ -153,9 +161,9 @@ fun SingleBudgetScreen(
                     navController.navigate(
                         SpendingDetailsRoute(spending)
                     ).also {
-                        println(spending.toString())
+                        //println(spending.toString())
                         for (s in spendings) {
-                            println(s.id)
+                            //println(s.id)
                         }
                     }
                 }
@@ -168,7 +176,7 @@ fun SingleBudgetScreen(
 
 private fun LocalDateTime.noSpaces(): String {
     val string = "$year$monthValue$dayOfMonth$hour$minute$second"
-    println("TimeStamp no spaces: $string")
+    //println("TimeStamp no spaces: $string")
     return string
 }
 

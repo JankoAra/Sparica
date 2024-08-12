@@ -102,6 +102,10 @@ dependencies {
     //Work manager for background tasks
     implementation ("androidx.work:work-runtime-ktx:2.8.1")
 
+    //for making pdf
+    implementation ("com.itextpdf:itext7-core:7.1.15")
+
+
 }
 
 //Room

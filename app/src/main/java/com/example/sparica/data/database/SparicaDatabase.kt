@@ -9,16 +9,13 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.sparica.data.dao.ExchangeRateDao
 import com.example.sparica.data.dao.SpendingCategoryDao
-import com.example.sparica.util.Converters
 import com.example.sparica.data.dao.SpendingDao
 import com.example.sparica.data.dao.SpendingSubcategoryDao
-import com.example.sparica.data.database.migrations.MIGRATION_4_5
-import com.example.sparica.data.database.migrations.MIGRATION_5_6
 import com.example.sparica.data.models.ExchangeRate
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
-import com.example.sparica.viewmodels.SpendingViewModel
+import com.example.sparica.util.Converters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +41,7 @@ abstract class SparicaDatabase : RoomDatabase() {
                 Room.databaseBuilder(context, SparicaDatabase::class.java, "sparica_database")
                     //.fallbackToDestructiveMigration()
                     //.addCallback(DatabaseCallback(scope))
-                    //.addMigrations(MIGRATION_4_5, MIGRATION_5_6)
+                    //.addMigrations(MIGRATION_4_5)
                     .build()
                     .also {
                         Instance = it

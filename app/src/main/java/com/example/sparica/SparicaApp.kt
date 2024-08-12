@@ -28,28 +28,6 @@ class SparicaApp : Application() {
 
     }
 
-    lateinit var createFileLauncher: ActivityResultLauncher<String>
-    private var currentFileContent: String? = null
 
-    fun registerCreateFileLauncher(activity: ComponentActivity) {
-        createFileLauncher = activity.registerForActivityResult(
-            ActivityResultContracts.CreateDocument("*/*")
-        ) { uri: Uri? ->
-            uri?.let { currentUri ->
-                currentFileContent?.let { content ->
-                    activity.contentResolver.openOutputStream(currentUri)?.use { outputStream ->
-                        outputStream.write(content.toByteArray())
-                        outputStream.flush()
-                        Toast.makeText(activity, "File saved successfully", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        }
-    }
-
-    fun createFile(fileName: String, contentGenerator: () -> String) {
-        currentFileContent = contentGenerator()
-        createFileLauncher.launch(fileName)
-    }
 }
 

@@ -60,7 +60,7 @@ fun PreviewConversation() {
 fun MessageCard(msg: Message) {
     Row(modifier = Modifier.padding(all = 8.dp)) {
         Image(
-            painter = painterResource(R.drawable.janko_profil_glava),
+            painter = painterResource(R.drawable.exchange_icon),
             contentDescription = "Slika glave",
             modifier = Modifier
                 // Set image size to 40 dp
