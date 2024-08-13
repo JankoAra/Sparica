@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.sparica.ui.util.MyTopAppBar
+import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.viewmodels.SpendingViewModel
 
 @Composable
@@ -25,10 +26,12 @@ fun ExchangeRateTable(
     val rates by spendingViewModel.exchangeRates.collectAsState()
     Scaffold(topBar = {
         MyTopAppBar(
-            onGoBack = { navHostController.popBackStack() },
-            showBackButton = true,
-            goToExchangeRate = {})
+            navigationIcon = { NavigateBackIconButton {
+                navHostController.popBackStack()
+            }}
+        )
     }) {
+        spendingViewModel.getLatestExchangeRates()
         LazyColumn(modifier = Modifier.padding(it)) {
             items(rates) { rate ->
                 Row(modifier = Modifier.fillMaxWidth()) {

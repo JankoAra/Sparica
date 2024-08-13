@@ -15,6 +15,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -28,10 +29,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.sparica.R
 import com.example.sparica.data.models.Budget
 import com.example.sparica.navigation.BudgetDashboardRoute
+import com.example.sparica.navigation.ExchangeRateTableRoute
+import com.example.sparica.ui.util.ExchangeRateIcon
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.viewmodels.BudgetViewModel
 
@@ -46,9 +51,12 @@ fun BudgetsMainScreen(
     Scaffold(
         topBar = {
             MyTopAppBar(
-                onGoBack = {},
-                showBackButton = false,
-                goToExchangeRate = { })
+                actions = {
+                    IconButton(onClick = {navController.navigate(ExchangeRateTableRoute)}) {
+                        ExchangeRateIcon()
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(

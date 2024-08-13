@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -69,10 +70,11 @@ fun SpendingListItemContent(
 ) {
     TextButton(
         onClick = { toDetails() },
+        shape = RectangleShape,
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary))
+            .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), shape = RectangleShape)
             .padding(4.dp)
     ) {
         Column(
@@ -85,10 +87,12 @@ fun SpendingListItemContent(
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
             )
             Text(
-                text = spending.category.toString() + (spending.subcategory?.toString()
-                    ?.let { "($it)" } ?: ""),
+                text = spending.category.toString(),
                 style = TextStyle(fontSize = 14.sp)
             )
+            spending.subcategory?.let {
+                Text(text = "($it)", style = TextStyle(fontSize = 12.sp))
+            }
         }
         Column(
             modifier = Modifier.weight(1f),

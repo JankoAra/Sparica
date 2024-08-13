@@ -9,7 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +43,9 @@ import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
 import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.spendingsToCSV
+import com.example.sparica.ui.util.ExchangeRateIcon
 import com.example.sparica.ui.util.MyTopAppBar
+import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.ui.util.SwipeToDeleteContainer
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
@@ -83,18 +93,54 @@ fun SingleBudgetScreen(
         totalSpending = totalSpending.copy(price = totalPrice, currency = selectedCurrency)
         //println(totalSpending.toString())
     }
-
-
-
     Scaffold(
         topBar = {
             MyTopAppBar(
-                onGoBack = {},
-                showBackButton = false,
-                goToExchangeRate = {
-                    spendingViewModel.getLatestExchangeRates()
-                    navController.navigate(ExchangeRateTableRoute)
-                })
+                actions = {
+                    val expanded = remember { mutableStateOf(false) }
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            // Handle menu item click
+                            val timestamp =
+                                LocalDateTime.now().noSpaces()
+                            ReportUtils.createFile(
+                                "report$timestamp.csv",
+                                spendingsToCSV(spendings)
+                            )
+                            expanded.value = false
+                        }, text = {
+                            Text("Save as CSV")
+                        })
+                        DropdownMenuItem(onClick = {
+                            // Handle menu item click
+                            val timestamp =
+                                LocalDateTime.now().noSpaces()
+                            ReportUtils.createFile(
+                                "report$timestamp.pdf",
+                                spendingsToCSV(spendings)
+                            )
+                            expanded.value = false
+                        }, text = {
+                            Text("Save as PDF")
+                        })
+                    }
+                    IconButton(onClick = { navController.navigate(ExchangeRateTableRoute) }) {
+                        ExchangeRateIcon()
+                    }
+                    IconButton(onClick = { expanded.value = !expanded.value }) {
+                        Icon(Icons.Default.Menu, contentDescription = "More options")
+                    }
+                },
+                navigationIcon = {
+                    NavigateBackIconButton {
+                        navController.popBackStack()
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         // Use LazyColumn for the entire scrollable content
@@ -105,23 +151,6 @@ fun SingleBudgetScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp) // Add horizontal padding to content
         ) {
-
-            item {
-                Button(onClick = {
-                    val timestamp =
-                        LocalDateTime.now().noSpaces()
-                    ReportUtils.createFile("report$timestamp.csv", spendingsToCSV(spendings))
-                }) {
-                    Text(text = "Generate CSV")
-                }
-                Button(onClick = {
-                    val timestamp =
-                        LocalDateTime.now().noSpaces()
-                    ReportUtils.createFile("report$timestamp.pdf", spendingsToCSV(spendings))
-                }) {
-                    Text(text = "Generate PDF")
-                }
-            }
             // Insert the form as the first item
             item {
                 InsertSpendingForm(spendingViewModel, budgetID)
