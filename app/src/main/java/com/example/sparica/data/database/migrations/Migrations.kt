@@ -60,3 +60,15 @@ val MIGRATION_7_8 = object:Migration(7,8){
     }
 
 }
+
+val MIGRATION_8_9 = object:Migration(8,9){
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("Alter table 'spendings' add column 'deleted' Integer not null default 0")
+    }
+}
+
+val MIGRATION_9_10 = object:Migration(9,10){
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("Alter table 'spendings' add column 'dateDeleted' text")
+    }
+}

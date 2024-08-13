@@ -12,6 +12,8 @@ interface SpendingRepository {
 
     fun getAllSpendingsForBudgetStream(budgetID: Int): Flow<List<Spending>>
 
+    fun getAllDeletedSpendings(): Flow<List<Spending>>
+
 
     suspend fun insertSpending(spending: Spending)
 

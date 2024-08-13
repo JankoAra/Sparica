@@ -9,6 +9,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.text.DecimalFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -32,7 +33,9 @@ data class Spending(
     val subcategory: SpendingSubcategory? = null,
     val budgetID: Int? = null,
     var currency: Currency = Currency.RSD,
-    @Contextual val date: LocalDateTime = LocalDateTime.now()
+    @Contextual val date: LocalDateTime = LocalDateTime.now(),
+    var deleted:Boolean = false,
+    @Contextual var dateDeleted:LocalDate? = null
 
 ) : Parcelable {
 

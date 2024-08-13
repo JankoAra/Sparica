@@ -17,6 +17,10 @@ class SpendingRepositoryImpl(private val spendingDao: SpendingDao) : SpendingRep
         return spendingDao.getAllSpendingsForBudget(budgetID)
     }
 
+    override fun getAllDeletedSpendings(): Flow<List<Spending>> {
+        return spendingDao.getAllDeletedSpendings()
+    }
+
     override suspend fun insertSpending(spending: Spending) {
         spendingDao.insert(spending)
     }

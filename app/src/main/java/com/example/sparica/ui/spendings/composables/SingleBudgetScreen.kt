@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,11 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.sparica.SparicaApp
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
@@ -40,6 +36,7 @@ import com.example.sparica.navigation.SpendingDetailsRoute
 import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.spendingsToCSV
 import com.example.sparica.ui.util.MyTopAppBar
+import com.example.sparica.ui.util.SwipeToDeleteContainer
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 import java.time.LocalDateTime
@@ -102,6 +99,7 @@ fun SingleBudgetScreen(
     ) { innerPadding ->
         // Use LazyColumn for the entire scrollable content
         LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -163,15 +161,15 @@ fun SingleBudgetScreen(
 
             // Insert the list of spendings
             items(spendings, key = { it.id }) { spending ->
-                SpendingListItem(spending = spending, spendingViewModel, selectedCurrency) {
-                    navController.navigate(
-                        SpendingDetailsRoute(spending)
-                    ).also {
-                        //println(spending.toString())
-                        for (s in spendings) {
-                            //println(s.id)
-                        }
-                    }
+                SwipeToDeleteContainer(
+                    item = spending,
+                    onDelete = { spendingViewModel.markDeleted(spending) }) {
+                    SpendingListItem(
+                        spending = spending,
+                        spendingViewModel = spendingViewModel,
+                        targetCurrency = selectedCurrency,
+                        onTap = { navController.navigate(SpendingDetailsRoute(spending)) }
+                    )
                 }
             }
 

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class SpendingViewModel(application: Application) : AndroidViewModel(application) {
     private val spendingRepository: SpendingRepository
@@ -123,6 +124,14 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
     fun delete(spending: Spending) {
         viewModelScope.launch {
             spendingRepository.deleteSpending(spending)
+        }
+    }
+
+    fun markDeleted(spending: Spending) {
+        viewModelScope.launch {
+            spending.deleted = true
+            spending.dateDeleted = LocalDate.now()
+            spendingRepository.updateSpending(spending)
         }
     }
 
