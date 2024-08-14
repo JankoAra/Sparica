@@ -23,10 +23,8 @@ class MainActivity : ComponentActivity() {
             SparicaTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MyNavHost()
-
                 }
             }
         }
-
     }
 }

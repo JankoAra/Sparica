@@ -24,6 +24,6 @@ interface BudgetDao {
     @Query("SELECT * FROM budgets WHERE id = :id")
     fun getBudgetById(id: Int): Flow<Budget>
 
-    @Query("SELECT * FROM budgets ORDER BY dateCreated DESC")
+    @Query("SELECT * FROM budgets ORDER BY id DESC")
     fun getAllBudgets(): Flow<List<Budget>>
 }

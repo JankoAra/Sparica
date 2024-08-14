@@ -11,7 +11,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sparica.data.models.Spending
 import com.example.sparica.ui.budgets.composables.BudgetsMainScreen
-import com.example.sparica.ui.composables.SecondPage
 import com.example.sparica.ui.exchange.composables.ExchangeRateTable
 import com.example.sparica.ui.spendings.composables.SingleBudgetScreen
 import com.example.sparica.ui.spendings.composables.SpendingDetailsScreen
@@ -26,33 +25,36 @@ fun MyNavHost() {
     val navController = rememberNavController()
     val spendingViewModel: SpendingViewModel = viewModel<SpendingViewModel>()
     val budgetViewModel: BudgetViewModel = viewModel<BudgetViewModel>()
+
     NavHost(
         navController = navController,
         startDestination = BudgetsMainScreenRoute,
         enterTransition = { fadeIn(animationSpec = tween(0)) },
         exitTransition = { fadeOut(animationSpec = tween(0)) }
     ) {
-        // Novi nacin rutiranja putem klasa kao ruta, beta verzija
-        composable<BudgetDashboardRoute> {
-            val args = it.toRoute<BudgetDashboardRoute>()
-            SingleBudgetScreen(navController, spendingViewModel, args.budgetID)
+        composable<BudgetsMainScreenRoute> {
+            //show budget list
+            BudgetsMainScreen(navController, budgetViewModel)
         }
-        composable<SecondPath> {
-            val args = it.toRoute<SecondPath>()
-            SecondPage(navController = navController, args.p, args.i)
+        composable<BudgetDashboardRoute> {
+            //show details for a single budget(spendings, reporting...)
+            val args = it.toRoute<BudgetDashboardRoute>()
+            spendingViewModel.getSpendingsForBudget(args.budgetID)
+            budgetViewModel.setActiveBudgetById(args.budgetID)
+            SingleBudgetScreen(navController, spendingViewModel, budgetViewModel, args.budgetID)
         }
         composable<SpendingDetailsRoute>(
             typeMap = mapOf(typeOf<Spending>() to CustomNavTypes.SpendingType)
         ) {
+            //show details of a spending
             val args = it.toRoute<SpendingDetailsRoute>()
             SpendingDetailsScreen(spending = args.spending) { navController.popBackStack() }
         }
         composable<ExchangeRateTableRoute> {
-            ExchangeRateTable(navController, spendingViewModel)
+            //show latest exchange rates
+            ExchangeRateTable(navController, budgetViewModel)
         }
-        composable<BudgetsMainScreenRoute> {
-            BudgetsMainScreen(navController, budgetViewModel)
-        }
+
     }
 }
 

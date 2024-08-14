@@ -5,17 +5,15 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class BudgetDashboardRoute(val budgetID:Int)
+object BudgetsMainScreenRoute   //Shows list of created budgets and can create new budget
 
 @Serializable
-data class SecondPath(val p: String?, val i: Int = 0)
-//Int argument ne sme biti nullable?
+data class BudgetDashboardRoute(val budgetID: Int)   //Shows list of spendings for a specific budget. Spending insertion form.
+
 
 @Serializable
-data class SpendingDetailsRoute(val spending: Spending)
+data class SpendingDetailsRoute(val spending: Spending) //Details for a single spending
 
 @Serializable
-object ExchangeRateTableRoute
+object ExchangeRateTableRoute   // Today's exchange rates table
 
-@Serializable
-object BudgetsMainScreenRoute

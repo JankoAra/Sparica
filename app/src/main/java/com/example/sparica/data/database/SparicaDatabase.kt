@@ -12,6 +12,7 @@ import com.example.sparica.data.dao.ExchangeRateDao
 import com.example.sparica.data.dao.SpendingCategoryDao
 import com.example.sparica.data.dao.SpendingDao
 import com.example.sparica.data.dao.SpendingSubcategoryDao
+import com.example.sparica.data.database.migrations.MIGRATION_10_11
 import com.example.sparica.data.database.migrations.MIGRATION_6_7
 import com.example.sparica.data.database.migrations.MIGRATION_7_8
 import com.example.sparica.data.database.migrations.MIGRATION_8_9
@@ -28,7 +29,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Spending::class, SpendingCategory::class, SpendingSubcategory::class, ExchangeRate::class, Budget::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -48,7 +49,13 @@ abstract class SparicaDatabase : RoomDatabase() {
                 Room.databaseBuilder(context, SparicaDatabase::class.java, "sparica_database")
                     //.fallbackToDestructiveMigration()
                     //.addCallback(DatabaseCallback(scope))
-                    .addMigrations(MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
+                    .addMigrations(
+                        MIGRATION_6_7,
+                        MIGRATION_7_8,
+                        MIGRATION_8_9,
+                        MIGRATION_9_10,
+                        MIGRATION_10_11
+                    )
                     .build()
                     .also {
                         Instance = it

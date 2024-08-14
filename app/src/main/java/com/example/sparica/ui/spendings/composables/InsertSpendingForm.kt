@@ -44,18 +44,31 @@ import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel(), budgetID:Int) {
+fun InsertSpendingForm(
+    spendingViewModel: SpendingViewModel,
+    budgetViewModel: BudgetViewModel,
+    budgetID: Int
+) {
+    val activeBudget by budgetViewModel.activeBudget.collectAsState()
+
     var description by rememberSaveable { mutableStateOf("") }
     var priceString by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf<SpendingCategory?>(null) }
     var selectedSubcategory by rememberSaveable { mutableStateOf<SpendingSubcategory?>(null) }
-    var selectedCurrency by rememberSaveable { mutableStateOf<Currency>(Currency.RSD) }
+    var selectedCurrency by rememberSaveable {
+        mutableStateOf<Currency>(
+            activeBudget?.defaultCurrency ?: Currency.RSD
+        )
+    }
 
-
+    LaunchedEffect(activeBudget) {
+        selectedCurrency = activeBudget?.defaultCurrency ?: Currency.RSD
+    }
     val focusManager = LocalFocusManager.current
 
     val descriptionFocusRequester = remember { FocusRequester() }
@@ -68,7 +81,8 @@ fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel(), budge
     // Update the selectedCategory once categories are loaded
     LaunchedEffect(categories) {
         if (categories.isNotEmpty() && selectedCategory == null) {
-            var uncategorizedIndex = categories.indexOf(SpendingCategory(name = "Uncategorized", order = 0))
+            var uncategorizedIndex =
+                categories.indexOf(SpendingCategory(name = "Uncategorized", order = 0))
             if (uncategorizedIndex == -1) {
                 uncategorizedIndex = 0
             }
@@ -150,9 +164,15 @@ fun InsertSpendingForm(spendingViewModel: SpendingViewModel = viewModel(), budge
                 return@let
             }
             if (selectedSubcategory == null) {
-                var etcIndex = subcategories.indexOf(SpendingSubcategory(name = "etc", categoryId = selectedCategory!!.id, order = 0))
-                if(etcIndex==-1){
-                    etcIndex=0
+                var etcIndex = subcategories.indexOf(
+                    SpendingSubcategory(
+                        name = "etc",
+                        categoryId = selectedCategory!!.id,
+                        order = 0
+                    )
+                )
+                if (etcIndex == -1) {
+                    etcIndex = 0
                 }
                 selectedSubcategory = subcategories[etcIndex]
             }

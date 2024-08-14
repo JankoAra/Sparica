@@ -72,3 +72,9 @@ val MIGRATION_9_10 = object:Migration(9,10){
         db.execSQL("Alter table 'spendings' add column 'dateDeleted' text")
     }
 }
+
+val MIGRATION_10_11 = object:Migration(10,11){
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("Alter table 'budgets' add column 'defaultCurrency' text not null default 'RSD'")
+    }
+}

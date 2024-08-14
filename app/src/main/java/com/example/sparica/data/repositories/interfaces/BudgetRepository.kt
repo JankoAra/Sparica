@@ -1,4 +1,4 @@
-package com.example.sparica.data.repositories
+package com.example.sparica.data.repositories.interfaces
 
 import com.example.sparica.data.models.Budget
 import kotlinx.coroutines.flow.Flow

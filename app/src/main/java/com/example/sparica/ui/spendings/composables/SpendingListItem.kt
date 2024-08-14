@@ -5,13 +5,10 @@ package com.example.sparica.ui.spendings.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,15 +30,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 
 @Composable
 fun SpendingListItem(
     spending: Spending,
-    spendingViewModel: SpendingViewModel = viewModel(),
+    budgetViewModel: BudgetViewModel,
     targetCurrency: Currency,
-    onTap: () -> Unit,
-    modifier: Modifier = Modifier
+    onTap: () -> Unit
 ) {
     var convertedPrice by rememberSaveable {
         mutableStateOf(
@@ -50,7 +46,9 @@ fun SpendingListItem(
         )
     }
     LaunchedEffect(targetCurrency) {
-        convertedPrice = spendingViewModel.convertPrice(spending, targetCurrency).price
+        budgetViewModel.convertPrice(spending, targetCurrency) {
+            convertedPrice = it.price
+        }
     }
     SpendingListItemContent(
         spending = spending,
@@ -73,7 +71,7 @@ fun SpendingListItemContent(
         shape = RectangleShape,
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.background)
             .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), shape = RectangleShape)
             .padding(4.dp)
     ) {

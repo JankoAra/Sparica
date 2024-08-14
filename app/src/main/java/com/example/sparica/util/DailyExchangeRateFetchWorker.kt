@@ -2,26 +2,19 @@ package com.example.sparica.util
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.sparica.SparicaApp
 import com.example.sparica.data.api.ExchangeRateAPI
-import com.example.sparica.data.database.SparicaDatabase
-import com.example.sparica.data.repositories.ExchangeRateRepositoryImpl
-import kotlinx.coroutines.CoroutineScope
+import com.example.sparica.data.repositories.impl.ExchangeRateRepositoryImpl
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 
 class DailyExchangeRateFetchWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {

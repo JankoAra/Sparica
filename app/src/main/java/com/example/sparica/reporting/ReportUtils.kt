@@ -10,6 +10,8 @@ import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object ReportUtils {
     private lateinit var createFileLauncherCSV: ActivityResultLauncher<String>
@@ -83,4 +85,9 @@ object ReportUtils {
             else -> Toast.makeText(this.activity, "Unsupported file type", Toast.LENGTH_LONG).show()
         }
     }
+
+}
+fun LocalDateTime.noSpaces(): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    return this.format(formatter)
 }

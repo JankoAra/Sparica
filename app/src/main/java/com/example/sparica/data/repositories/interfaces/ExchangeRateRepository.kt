@@ -1,4 +1,4 @@
-package com.example.sparica.data.repositories
+package com.example.sparica.data.repositories.interfaces
 
 import com.example.sparica.data.models.ExchangeRate
 import com.example.sparica.data.models.Spending

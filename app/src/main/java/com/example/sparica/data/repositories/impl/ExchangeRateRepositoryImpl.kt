@@ -1,4 +1,4 @@
-package com.example.sparica.data.repositories
+package com.example.sparica.data.repositories.impl
 
 import android.util.Log
 import com.example.sparica.data.api.ExchangeRateAPI
@@ -7,6 +7,7 @@ import com.example.sparica.data.dao.ExchangeRateDao
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.ExchangeRate
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.repositories.interfaces.ExchangeRateRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -80,7 +81,7 @@ class ExchangeRateRepositoryImpl(
                         )
                     }
                 if (newRates != null) {
-                    exchangeRateDao.insertAll(newRates)
+                    exchangeRateDao.insertAll(newRates.distinct())
                 }
                 Log.d("API call", "API fetch latest rates succeded")
             } else {

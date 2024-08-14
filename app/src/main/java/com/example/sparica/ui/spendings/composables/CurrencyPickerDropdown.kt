@@ -36,7 +36,6 @@ fun CurrencyPickerDropdown(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
         modifier = modifier
-            .padding(start = 4.dp)
             .wrapContentSize()
     ) {
         TextField(

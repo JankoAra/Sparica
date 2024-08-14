@@ -21,4 +21,24 @@ data class ExchangeRate (
     override fun toString(): String {
         return "ExchangeRate(dateTime=$date, baseCurrencyCode='$baseCurrencyCode', targetCurrencyCode='$targetCurrencyCode', exchangeRate=$exchangeRate)"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ExchangeRate
+
+        if (date != other.date) return false
+        if (baseCurrencyCode != other.baseCurrencyCode) return false
+        if (targetCurrencyCode != other.targetCurrencyCode) return false
+        return exchangeRate == other.exchangeRate
+    }
+
+    override fun hashCode(): Int {
+        var result = date.hashCode()
+        result = 31 * result + baseCurrencyCode.hashCode()
+        result = 31 * result + targetCurrencyCode.hashCode()
+        result = 31 * result + exchangeRate.hashCode()
+        return result
+    }
 }

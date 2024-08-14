@@ -1,7 +1,8 @@
-package com.example.sparica.data.repositories
+package com.example.sparica.data.repositories.impl
 
 import com.example.sparica.data.dao.BudgetDao
 import com.example.sparica.data.models.Budget
+import com.example.sparica.data.repositories.interfaces.BudgetRepository
 import kotlinx.coroutines.flow.Flow
 
 class BudgetRepositoryImpl(private val budgetDao: BudgetDao) : BudgetRepository {
