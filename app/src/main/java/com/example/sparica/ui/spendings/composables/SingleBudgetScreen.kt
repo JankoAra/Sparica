@@ -153,7 +153,9 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.csv",
-                                    spendingsToCSV(spendings)
+                                    spendingsToCSV(spendings, activeBudget!!){s,c->
+                                        budgetViewModel.convert(s,c)
+                                    }
                                 )
                                 scope.launch { drawerState.close() }
                             },
@@ -166,7 +168,9 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.pdf",
-                                    spendingsToCSV(spendings)
+                                    spendingsToCSV(spendings, activeBudget!!){s,c->
+                                        budgetViewModel.convert(s,c)
+                                    }
                                 )
                                 scope.launch { drawerState.close() }
                             },

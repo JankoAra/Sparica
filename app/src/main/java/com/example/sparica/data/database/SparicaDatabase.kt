@@ -128,6 +128,11 @@ abstract class SparicaDatabase : RoomDatabase() {
                 "Train",
                 "Car",
                 "Ferry",
+                "Gas",
+                "etc"
+            ),
+            "Miscellaneous" to listOf(
+                "Accommodation",
                 "etc"
             ),
             "Uncategorized" to emptyList()
