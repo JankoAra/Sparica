@@ -13,5 +13,7 @@ interface BudgetRepository {
 
     fun getBudgetById(id: Int): Flow<Budget>
 
+    suspend fun getBudgetByIdSync(id: Int): Budget
+
     fun getAllBudgets(): Flow<List<Budget>>
 }

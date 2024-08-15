@@ -4,19 +4,15 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sparica.data.api.ExchangeRateAPI
 import com.example.sparica.data.database.SparicaDatabase
-import com.example.sparica.data.models.Currency
-import com.example.sparica.data.models.ExchangeRate
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
-import com.example.sparica.data.repositories.interfaces.ExchangeRateRepository
-import com.example.sparica.data.repositories.impl.ExchangeRateRepositoryImpl
 import com.example.sparica.data.repositories.impl.SpendingCategoryRepositoryImpl
 import com.example.sparica.data.repositories.interfaces.SpendingRepository
 import com.example.sparica.data.repositories.impl.SpendingRepositoryImpl
 import com.example.sparica.data.repositories.impl.SpendingSubcategoryRepositoryImpl
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,8 +25,6 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
     private val spendingRepository: SpendingRepository
     private val spendingCategoryRepository: SpendingCategoryRepositoryImpl
     private val spendingSubcategoryRepository: SpendingSubcategoryRepositoryImpl
-
-
 
     //StateFlow cuva samo jednu vrednost (.value)
     //Obavestava svaki put kada promeni stanje
@@ -55,7 +49,6 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         val spendingDao = db.spendingDao()
         val categoryDao = db.spendingCategoryDao()
         val subcategoryDao = db.spendingSubcategoryDao()
-        val exchangeRateDao = db.exchangeRateDao()
         spendingRepository = SpendingRepositoryImpl(spendingDao)
         spendingCategoryRepository = SpendingCategoryRepositoryImpl(categoryDao)
         spendingSubcategoryRepository = SpendingSubcategoryRepositoryImpl(subcategoryDao)
@@ -89,14 +82,16 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
 
     }
 
+    private var currentJobCollectSpendings: Job? = null
+
     fun getSpendingsForBudget(budgetID: Int) {
-        viewModelScope.launch {
+        currentJobCollectSpendings?.cancel()  // Cancel any previous collection
+        currentJobCollectSpendings = viewModelScope.launch {
             spendingRepository.getAllSpendingsForBudgetStream(budgetID).collect { newSpendings ->
                 _allSpendings.update {
                     newSpendings
                 }
             }
-
         }
     }
 

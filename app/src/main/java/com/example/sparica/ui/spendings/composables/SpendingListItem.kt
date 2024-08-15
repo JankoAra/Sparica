@@ -46,9 +46,8 @@ fun SpendingListItem(
         )
     }
     LaunchedEffect(targetCurrency) {
-        budgetViewModel.convertPrice(spending, targetCurrency) {
-            convertedPrice = it.price
-        }
+        convertedPrice = budgetViewModel.convert(spending, targetCurrency).price
+
     }
     SpendingListItemContent(
         spending = spending,

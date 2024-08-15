@@ -23,6 +23,10 @@ class BudgetRepositoryImpl(private val budgetDao: BudgetDao) : BudgetRepository 
         return budgetDao.getBudgetById(id)
     }
 
+    override suspend fun getBudgetByIdSync(id: Int): Budget {
+        return budgetDao.getBudgetByIdSync(id)
+    }
+
     override fun getAllBudgets(): Flow<List<Budget>> {
         return budgetDao.getAllBudgets()
     }

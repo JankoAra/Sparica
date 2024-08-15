@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,13 +35,19 @@ fun MyNavHost() {
     ) {
         composable<BudgetsMainScreenRoute> {
             //show budget list
+            LaunchedEffect(Unit) {
+                budgetViewModel.setActiveBudgetById(null)
+            }
             BudgetsMainScreen(navController, budgetViewModel)
         }
         composable<BudgetDashboardRoute> {
             //show details for a single budget(spendings, reporting...)
             val args = it.toRoute<BudgetDashboardRoute>()
             spendingViewModel.getSpendingsForBudget(args.budgetID)
-            budgetViewModel.setActiveBudgetById(args.budgetID)
+            LaunchedEffect(Unit) {
+                budgetViewModel.setActiveBudgetById(args.budgetID)
+                spendingViewModel.getSpendingsForBudget(args.budgetID)
+            }
             SingleBudgetScreen(navController, spendingViewModel, budgetViewModel, args.budgetID)
         }
         composable<SpendingDetailsRoute>(

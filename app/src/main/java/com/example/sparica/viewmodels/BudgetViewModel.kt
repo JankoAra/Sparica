@@ -15,10 +15,15 @@ import com.example.sparica.data.repositories.impl.BudgetRepositoryImpl
 import com.example.sparica.data.repositories.impl.ExchangeRateRepositoryImpl
 import com.example.sparica.data.repositories.interfaces.ExchangeRateRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
     private val budgetRepository: BudgetRepository
@@ -27,11 +32,20 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     private val _allBudgets = MutableStateFlow<List<Budget>>(emptyList())
     val allBudgets: StateFlow<List<Budget>> = _allBudgets.asStateFlow()
 
-    private val _activeBudget = MutableStateFlow<Budget?>(null)
-    val activeBudget = _activeBudget.asStateFlow()
-
     private val _exchangeRates = MutableStateFlow<List<ExchangeRate>>(emptyList())
     val exchangeRates: StateFlow<List<ExchangeRate>> get() = _exchangeRates
+
+    private val _activeBudgetId = MutableStateFlow<Int?>(null)
+
+    val activeBudget = combine(_allBudgets, _activeBudgetId) { budgets, activeId ->
+        if (activeId == null) {
+            null
+        } else {
+            val newActive = budgets.firstOrNull { it.id == activeId }
+            Log.d("BudgetViewModel", "new active budget set: $newActive")
+            newActive
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
 
     init {
@@ -67,21 +81,19 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun deleteBudget(budget: Budget) {
-        if(activeBudget.value?.equals(budget) ?:false){
-            _activeBudget.value = null
+        if (budget.id == _activeBudgetId.value) {
+            Log.d("BudgetViewModel", "deleting active budget: $budget")
+            setActiveBudgetById(null)
+            Log.d("BudgetViewModel", "active budget set to null: ${activeBudget.value}")
         }
         viewModelScope.launch {
             budgetRepository.deleteBudget(budget)
         }
     }
 
-    fun setActiveBudgetById(id: Int) {
-        viewModelScope.launch {
-            budgetRepository.getBudgetById(id).collect { b ->
-                _activeBudget.update {
-                    b
-                }
-            }
+    fun setActiveBudgetById(id: Int?) {
+        _activeBudgetId.update {
+            id
         }
     }
 
@@ -93,16 +105,39 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun convertPrice(spending: Spending, targetCurrency: Currency, onResult: (Spending) -> Unit) {
-        // Launch a coroutine in a scope (this can be in a ViewModel or some other lifecycle-aware component)
-        viewModelScope.launch {
-            val result = exchangeRateRepository.convert(
-                spending.currency.name,
-                targetCurrency.name,
-                spending
-            )
-            onResult(result)
-        }
+    fun convert(spending: Spending, targetCurrency: Currency): Spending {
+        val sourceCurrency = spending.currency
+        val sourceRate =
+            exchangeRates.value.first { it.targetCurrencyCode == sourceCurrency.name }.exchangeRate
+        val targetRate =
+            exchangeRates.value.first { it.targetCurrencyCode == targetCurrency.name }.exchangeRate
+        return Spending(
+            price = spending.price / sourceRate * targetRate,
+            currency = targetCurrency,
+            description = ""
+        )
     }
+
+//    fun convertPrice(spending: Spending, targetCurrency: Currency, onResult: (Spending) -> Unit) {
+//        viewModelScope.launch {
+//            val result = exchangeRateRepository.convert(
+//                spending.currency.name,
+//                targetCurrency.name,
+//                spending
+//            )
+//            onResult(result)
+//        }
+//    }
+//
+//    suspend fun convertPriceSuspend(
+//        spending: Spending,
+//        selectedDisplayCurrency: Currency
+//    ): Spending {
+//        return suspendCoroutine { continuation ->
+//            convertPrice(spending, selectedDisplayCurrency) { convertedSpending ->
+//                continuation.resume(convertedSpending)
+//            }
+//        }
+//    }
 
 }

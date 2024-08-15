@@ -1,5 +1,6 @@
 package com.example.sparica.ui.spendings.composables
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +30,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +45,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
@@ -60,6 +60,8 @@ import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.ui.util.SwipeToDeleteContainer
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -67,7 +69,7 @@ import java.time.LocalDateTime
 @Composable
 fun SingleBudgetScreen(
     navController: NavHostController,
-    spendingViewModel: SpendingViewModel = viewModel(),
+    spendingViewModel: SpendingViewModel,
     budgetViewModel: BudgetViewModel,
     budgetID: Int
 ) {
@@ -77,7 +79,7 @@ fun SingleBudgetScreen(
     val spendings by spendingViewModel.allSpendings.collectAsState(emptyList())
 
     // State to hold the converted total
-    var selectedCurrency by rememberSaveable {
+    var selectedDisplayCurrency by rememberSaveable {
         mutableStateOf(
             activeBudget?.defaultCurrency ?: Currency.RSD
         )
@@ -86,47 +88,39 @@ fun SingleBudgetScreen(
         mutableStateOf(activeBudget?.name ?: "")
     }
     LaunchedEffect(activeBudget) {
-        selectedCurrency = activeBudget?.defaultCurrency ?: Currency.RSD
+        selectedDisplayCurrency = activeBudget?.defaultCurrency ?: Currency.RSD
         budgetName = activeBudget?.name ?: ""
-
-        activeBudget?.id?.let {
-            spendingViewModel.getSpendingsForBudget(it)
-        }
-    }
-    var totalPrice by rememberSaveable {
-        mutableDoubleStateOf(0.0)
     }
     var totalSpending by rememberSaveable {
         mutableStateOf(
             Spending(
                 description = "",
-                currency = selectedCurrency,
-                price = totalPrice
+                currency = selectedDisplayCurrency,
+                price = 0.0
             )
         )
     }
-
     // Perform the conversion in a coroutine
-    LaunchedEffect(spendings, selectedCurrency) {
-        var totalPrice = 0.0
-        var completedConversions = 0
+    val scope = rememberCoroutineScope()
+    DisposableEffect(spendings, selectedDisplayCurrency) {
+        val job = scope.launch {
+            val totalPrice = spendings.map {
+                budgetViewModel.convert(it, selectedDisplayCurrency)
+            }.sumOf { it.price }
+            totalSpending = totalSpending.copy(price = totalPrice, currency = selectedDisplayCurrency)
+            Log.d("SingleBudgetScreen", "spendings: $spendings")
+            Log.d("SingleBudgetScreen", "New total spending calculated: ${totalSpending.price} ${totalSpending.currency}")
+            Log.d("SingleBudgetScreen", "New total spending: $totalSpending")
+        }
 
-        spendings.forEach { spending ->
-            budgetViewModel.convertPrice(spending, selectedCurrency) { convertedSpending ->
-                totalPrice += convertedSpending.price
-                completedConversions++
-
-                // Check if all conversions are complete
-                if (completedConversions == spendings.size) {
-                    // Update the totalSpending when all conversions are done
-                    totalSpending = totalSpending.copy(price = totalPrice, currency = selectedCurrency)
-                    // Optionally, trigger any further actions after completion
-                }
-            }
+        // Clean up when the effect leaves the composition
+        onDispose {
+            job.cancel()
         }
     }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+
+
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         ModalNavigationDrawer(
@@ -249,10 +243,10 @@ fun SingleBudgetScreen(
                                 )
                                 CurrencyPickerDropdown(
                                     onCurrencySelected = {
-                                        selectedCurrency = it
+                                        selectedDisplayCurrency = it
                                     },
                                     currencies = Currency.entries,
-                                    selectedCurrencyState = selectedCurrency,
+                                    selectedCurrencyState = selectedDisplayCurrency,
                                     label = "Choose display currency",
                                     modifier = Modifier.padding(start = 4.dp)
                                 )
@@ -278,7 +272,7 @@ fun SingleBudgetScreen(
                                 SpendingListItem(
                                     spending = spending,
                                     budgetViewModel = budgetViewModel,
-                                    targetCurrency = selectedCurrency
+                                    targetCurrency = selectedDisplayCurrency
                                 ) { navController.navigate(SpendingDetailsRoute(spending)) }
                             }
                         }
