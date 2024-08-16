@@ -29,11 +29,11 @@ data class Spending(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var description: String,
     var price: Double,
-    val category: SpendingCategory? = null,
-    val subcategory: SpendingSubcategory? = null,
+    var category: SpendingCategory? = null,
+    var subcategory: SpendingSubcategory? = null,
     val budgetID: Int? = null,
     var currency: Currency = Currency.RSD,
-    @Contextual val date: LocalDateTime = LocalDateTime.now(),
+    @Contextual var date: LocalDateTime = LocalDateTime.now(),
     var deleted:Boolean = false,
     @Contextual var dateDeleted:LocalDate? = null
 

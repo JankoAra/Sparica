@@ -19,13 +19,13 @@ interface SpendingDao {
     @Update
     suspend fun update(spending: Spending)
 
-    @Query("Select * from spendings order by id desc")
+    @Query("Select * from spendings order by date desc")
     fun getAllSpendings():Flow<List<Spending>>
 
-    @Query("Select * from spendings where budgetID = :budgetID and deleted = 0 order by id desc")
+    @Query("Select * from spendings where budgetID = :budgetID and deleted = 0 order by date desc")
     fun getAllSpendingsForBudget(budgetID:Int):Flow<List<Spending>>
 
-    @Query("Select * from spendings where deleted = 1 order by id desc")
+    @Query("Select * from spendings where deleted = 1 order by dateDeleted desc")
     fun getAllDeletedSpendings():Flow<List<Spending>>
 
     @Query("Select * from spendings where id=:id")

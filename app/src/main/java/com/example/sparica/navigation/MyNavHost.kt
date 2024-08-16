@@ -63,7 +63,9 @@ fun MyNavHost() {
                 onClickBack = { navController.popBackStack() },
                 updateSpending = { s ->
                     spendingViewModel.updateSpending(s)
-                })
+                },
+                spendingViewModel = spendingViewModel
+            )
         }
         composable<EditBudgetRoute> {
             EditBudgetScreen(navController = navController, budgetViewModel = budgetViewModel)
