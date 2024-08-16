@@ -4,6 +4,8 @@ import com.example.sparica.data.database.SparicaDatabase
 import com.example.sparica.data.models.Budget
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 fun spendingsToCSV(
     spendings: List<Spending>,
@@ -11,6 +13,7 @@ fun spendingsToCSV(
     convert: (Spending, Currency) -> Spending
 ): String {
     val sep = "sep=,"
+    val createdAt = "Created at: "+DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm").format(LocalDateTime.now())
     //all spendings info
     val header =
         "description,price,currency,category,subcategory,datetime,${budget.defaultCurrency},RSD,EUR,USD"
@@ -67,10 +70,24 @@ fun spendingsToCSV(
             categoryEur += eur
             categoryUsd += usd
         }
+        if (subcategories.isEmpty()) {
+            //Uncategorized
+            categoryDefault = spendings
+                .filter { it.category?.name.equals(category) }
+                .sumOf { convert(it, budget.defaultCurrency).price }
+            val temp = Spending(
+                price = categoryDefault,
+                currency = budget.defaultCurrency,
+                description = ""
+            )
+            categoryRsd = convert(temp, Currency.RSD).price
+            categoryEur = convert(temp, Currency.EUR).price
+            categoryUsd = convert(temp, Currency.USD).price
+        }
         categorySpending.add("$category,$categoryDefault,$categoryRsd,$categoryEur,$categoryUsd")
     }
 
-    return (listOf(sep, header) + data + listOf(
+    return (listOf(sep, createdAt, header) + data + listOf(
         totalLineHeader,
         totalLine
     ) + listOf("") + categorySpending + listOf("") + subcategorySpending).joinToString("\n")

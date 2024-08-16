@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sparica.data.api.ExchangeRateAPI
 import com.example.sparica.data.database.SparicaDatabase
 import com.example.sparica.data.models.Budget
@@ -88,6 +89,12 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch {
             budgetRepository.deleteBudget(budget)
+        }
+    }
+
+    fun updateBudget(budget: Budget){
+        viewModelScope.launch {
+            budgetRepository.updateBudget(budget)
         }
     }
 

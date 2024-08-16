@@ -103,7 +103,7 @@ fun BudgetsMainScreen(
         if (showNamingDialog) {
             val focusRequester = remember { FocusRequester() }
             val focusManager = LocalFocusManager.current
-            var selectedCurrency by remember{ mutableStateOf(Currency.RSD)}
+            var selectedCurrency by remember { mutableStateOf(Currency.RSD) }
             LaunchedEffect(showNamingDialog) {
                 focusRequester.requestFocus()
             }
@@ -114,8 +114,10 @@ fun BudgetsMainScreen(
                 },
                 title = { Text("Enter a Name") },
                 text = {
-                    Column(modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center){
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         OutlinedTextField(
                             value = newBudgetName,
                             onValueChange = { newBudgetName = it },
@@ -141,10 +143,11 @@ fun BudgetsMainScreen(
                     Button(
                         onClick = {
                             // Handle the confirmed name here
-                            if (!"".equals(newBudgetName)) {
-                                val newBudget = Budget(name = newBudgetName, defaultCurrency = selectedCurrency)
-                                budgetViewModel.insertBudget(newBudget)
-                            }
+                            if (newBudgetName.isBlank()) newBudgetName = "Untitled"
+                            val newBudget =
+                                Budget(name = newBudgetName, defaultCurrency = selectedCurrency)
+                            budgetViewModel.insertBudget(newBudget)
+
                             showNamingDialog = false
                             newBudgetName = ""
                             focusManager.clearFocus()

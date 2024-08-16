@@ -5,6 +5,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sparica.data.models.Spending
 import com.example.sparica.ui.budgets.composables.BudgetsMainScreen
+import com.example.sparica.ui.budgets.composables.EditBudgetScreen
 import com.example.sparica.ui.exchange.composables.ExchangeRateTable
 import com.example.sparica.ui.spendings.composables.SingleBudgetScreen
 import com.example.sparica.ui.spendings.composables.SpendingDetailsScreen
@@ -55,7 +58,15 @@ fun MyNavHost() {
         ) {
             //show details of a spending
             val args = it.toRoute<SpendingDetailsRoute>()
-            SpendingDetailsScreen(spending = args.spending) { navController.popBackStack() }
+            SpendingDetailsScreen(
+                spending = args.spending,
+                onClickBack = { navController.popBackStack() },
+                updateSpending = { s ->
+                    spendingViewModel.updateSpending(s)
+                })
+        }
+        composable<EditBudgetRoute> {
+            EditBudgetScreen(navController = navController, budgetViewModel = budgetViewModel)
         }
         composable<ExchangeRateTableRoute> {
             //show latest exchange rates

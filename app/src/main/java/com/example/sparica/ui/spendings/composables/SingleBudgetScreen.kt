@@ -45,10 +45,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.navigation.BudgetsMainScreenRoute
+import com.example.sparica.navigation.EditBudgetRoute
 import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
 import com.example.sparica.reporting.ReportUtils
@@ -60,8 +62,6 @@ import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.ui.util.SwipeToDeleteContainer
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -73,10 +73,10 @@ fun SingleBudgetScreen(
     budgetViewModel: BudgetViewModel,
     budgetID: Int
 ) {
-    val activeBudget by budgetViewModel.activeBudget.collectAsState()
+    val activeBudget by budgetViewModel.activeBudget.collectAsStateWithLifecycle()
 
     // Collect spendings data as a state
-    val spendings by spendingViewModel.allSpendings.collectAsState(emptyList())
+    val spendings by spendingViewModel.allSpendings.collectAsStateWithLifecycle(emptyList())
 
     // State to hold the converted total
     var selectedDisplayCurrency by rememberSaveable {
@@ -107,9 +107,13 @@ fun SingleBudgetScreen(
             val totalPrice = spendings.map {
                 budgetViewModel.convert(it, selectedDisplayCurrency)
             }.sumOf { it.price }
-            totalSpending = totalSpending.copy(price = totalPrice, currency = selectedDisplayCurrency)
+            totalSpending =
+                totalSpending.copy(price = totalPrice, currency = selectedDisplayCurrency)
             Log.d("SingleBudgetScreen", "spendings: $spendings")
-            Log.d("SingleBudgetScreen", "New total spending calculated: ${totalSpending.price} ${totalSpending.currency}")
+            Log.d(
+                "SingleBudgetScreen",
+                "New total spending calculated: ${totalSpending.price} ${totalSpending.currency}"
+            )
             Log.d("SingleBudgetScreen", "New total spending: $totalSpending")
         }
 
@@ -153,8 +157,8 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.csv",
-                                    spendingsToCSV(spendings, activeBudget!!){s,c->
-                                        budgetViewModel.convert(s,c)
+                                    spendingsToCSV(spendings, activeBudget!!) { s, c ->
+                                        budgetViewModel.convert(s, c)
                                     }
                                 )
                                 scope.launch { drawerState.close() }
@@ -168,14 +172,22 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.pdf",
-                                    spendingsToCSV(spendings, activeBudget!!){s,c->
-                                        budgetViewModel.convert(s,c)
+                                    spendingsToCSV(spendings, activeBudget!!) { s, c ->
+                                        budgetViewModel.convert(s, c)
                                     }
                                 )
                                 scope.launch { drawerState.close() }
                             },
                         ) {
                             Text("Save as PDF")
+                        }
+                        Divider()
+                        TextButton(
+                            onClick = {
+                                navController.navigate(EditBudgetRoute)
+                            },
+                        ) {
+                            Text("Edit budget")
                         }
 
                         Spacer(modifier = Modifier.weight(1f)) // Pushes the content above to the top and the content below to the bottom

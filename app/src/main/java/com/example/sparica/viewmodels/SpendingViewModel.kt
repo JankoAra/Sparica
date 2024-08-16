@@ -107,6 +107,12 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun updateSpending(spending: Spending){
+        viewModelScope.launch {
+            spendingRepository.updateSpending(spending)
+        }
+    }
+
     fun markDeleted(spending: Spending) {
         viewModelScope.launch {
             spending.deleted = true

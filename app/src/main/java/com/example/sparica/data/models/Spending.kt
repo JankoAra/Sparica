@@ -27,7 +27,7 @@ import java.time.LocalDateTime
 )
 data class Spending(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val description: String,
+    var description: String,
     var price: Double,
     val category: SpendingCategory? = null,
     val subcategory: SpendingSubcategory? = null,

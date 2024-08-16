@@ -11,7 +11,7 @@ import java.time.LocalDate
 data class Budget(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String,
+    var name: String,
     @Contextual val dateCreated:LocalDate = LocalDate.now(),
     var defaultCurrency: Currency = Currency.RSD
 ) {

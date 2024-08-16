@@ -17,3 +17,5 @@ data class SpendingDetailsRoute(val spending: Spending) //Details for a single s
 @Serializable
 object ExchangeRateTableRoute   // Today's exchange rates table
 
+@Serializable
+object EditBudgetRoute  //Edit budget info screen(name, defaultCurrency)
