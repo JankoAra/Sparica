@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -53,6 +54,7 @@ import com.example.sparica.navigation.BudgetsMainScreenRoute
 import com.example.sparica.navigation.EditBudgetRoute
 import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
+import com.example.sparica.navigation.TrashCanRoute
 import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.noSpaces
 import com.example.sparica.reporting.spendingsToCSV
@@ -218,6 +220,9 @@ fun SingleBudgetScreen(
                         MyTopAppBar(
                             titleLabel = budgetName,
                             actions = {
+                                IconButton(onClick = { navController.navigate(TrashCanRoute) }) {
+                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Deleted spendings")
+                                }
                                 IconButton(onClick = { navController.navigate(ExchangeRateTableRoute) }) {
                                     ExchangeRateIcon()
                                 }

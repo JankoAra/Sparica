@@ -19,3 +19,6 @@ object ExchangeRateTableRoute   // Today's exchange rates table
 
 @Serializable
 object EditBudgetRoute  //Edit budget info screen(name, defaultCurrency)
+
+@Serializable
+object TrashCanRoute

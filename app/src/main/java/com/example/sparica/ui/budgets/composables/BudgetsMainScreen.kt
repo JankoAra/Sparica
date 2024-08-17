@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
@@ -45,6 +46,7 @@ import com.example.sparica.data.models.Budget
 import com.example.sparica.data.models.Currency
 import com.example.sparica.navigation.BudgetDashboardRoute
 import com.example.sparica.navigation.ExchangeRateTableRoute
+import com.example.sparica.navigation.TrashCanRoute
 import com.example.sparica.ui.spendings.composables.CurrencyPickerDropdown
 import com.example.sparica.ui.util.ExchangeRateIcon
 import com.example.sparica.ui.util.MyTopAppBar
@@ -62,6 +64,9 @@ fun BudgetsMainScreen(
         topBar = {
             MyTopAppBar(
                 actions = {
+                    IconButton(onClick = { navController.navigate(TrashCanRoute) }) {
+                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Deleted spendings")
+                    }
                     IconButton(onClick = { navController.navigate(ExchangeRateTableRoute) }) {
                         ExchangeRateIcon()
                     }

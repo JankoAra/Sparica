@@ -41,6 +41,8 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         MutableStateFlow<Map<SpendingCategory, List<SpendingSubcategory>>>(emptyMap())
     val subcategoryMap: StateFlow<Map<SpendingCategory, List<SpendingSubcategory>>> get() = _subcategoryMap
 
+    private val _deletedSpendings = MutableStateFlow<List<Spending>>(emptyList())
+    val deletedSpendings = _deletedSpendings.asStateFlow()
 
 
 
@@ -77,6 +79,13 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
 
             Log.d("SpendingViewModel", "Final subcategoryMap: $subcategoryMap")
             _subcategoryMap.value = subcategoryMap
+        }
+        viewModelScope.launch {
+            spendingRepository.getAllDeletedSpendings().collect{deleted ->
+                _deletedSpendings.update {
+                    deleted
+                }
+            }
         }
 
 

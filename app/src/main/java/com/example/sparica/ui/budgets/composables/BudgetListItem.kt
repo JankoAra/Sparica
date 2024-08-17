@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,7 +29,11 @@ fun BudgetListItem(budget: Budget, onClick: () -> Unit) {
             .height(80.dp)
             .fillMaxWidth()
             .border(2.dp, MaterialTheme.colorScheme.secondary, RectangleShape)
-            .padding(2.dp)
+            .padding(2.dp),
+        colors = ButtonDefaults.textButtonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        )
     ) {
         Row {
             Text(

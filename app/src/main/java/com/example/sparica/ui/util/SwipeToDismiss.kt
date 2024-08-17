@@ -89,8 +89,8 @@ fun <T> SwipeToDeleteContainer(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Confirm Deletion") },
-            text = { Text("Are you sure you want to delete this item?") },
+            title = { Text("Move to trash can") },
+            text = { Text("Are you sure you want to move this spending to trash can?") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -98,7 +98,7 @@ fun <T> SwipeToDeleteContainer(
                         showDialog = false
                     }
                 ) {
-                    Text("Delete")
+                    Text("Move to trash can")
                 }
             },
             dismissButton = {
