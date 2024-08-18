@@ -1,6 +1,5 @@
 package com.example.sparica.ui.spendings.composables
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,16 +10,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,7 +37,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
@@ -48,7 +44,6 @@ import com.example.sparica.data.models.SpendingSubcategory
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsertSpendingForm(
     spendingViewModel: SpendingViewModel,
@@ -62,9 +57,14 @@ fun InsertSpendingForm(
     var selectedCategory by rememberSaveable { mutableStateOf<SpendingCategory?>(null) }
     var selectedSubcategory by rememberSaveable { mutableStateOf<SpendingSubcategory?>(null) }
     var selectedCurrency by rememberSaveable {
-        mutableStateOf<Currency>(
+        mutableStateOf(
             activeBudget?.defaultCurrency ?: Currency.RSD
         )
+    }
+
+    fun clearFormFields() {
+        description = ""
+        priceString = ""
     }
 
     LaunchedEffect(activeBudget) {
@@ -177,7 +177,10 @@ fun InsertSpendingForm(
                 }
                 selectedSubcategory = subcategories[etcIndex]
             }
-            Text(text = "Subcategory", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Subcategory",
+                style = MaterialTheme.typography.headlineSmall
+            )
             RadioButtonGrid(
                 options = subcategories,
                 selectedOption = selectedSubcategory,
@@ -186,19 +189,23 @@ fun InsertSpendingForm(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            focusManager.clearFocus()
+        Button(
+            onClick = {
+                focusManager.clearFocus()
 
-            val spending = Spending(
-                description = description,
-                price = priceString.toDoubleOrNull() ?: 0.0,
-                category = selectedCategory,
-                subcategory = selectedSubcategory,
-                currency = selectedCurrency,
-                budgetID = budgetID
-            )
-            spendingViewModel.insert(spending)
-        }) {
+                val spending = Spending(
+                    description = description,
+                    price = priceString.toDoubleOrNull() ?: 0.0,
+                    category = selectedCategory,
+                    subcategory = selectedSubcategory,
+                    currency = selectedCurrency,
+                    budgetID = budgetID
+                )
+                spendingViewModel.insert(spending)
+                clearFormFields()
+            },
+            enabled = !description.isBlank() && !priceString.isBlank() && priceString.toDoubleOrNull() != null
+        ) {
             Text(text = "Add spending")
         }
     }
@@ -228,15 +235,16 @@ fun <T> RadioButtonGrid(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                .clickable { onOptionSelected(option) },
+                //.background(MaterialTheme.colorScheme.tertiary, RoundedCornerShape(8.dp))
+                .clickable { onOptionSelected(option) }
+                .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
                 selected = option == selectedOption,
                 onClick = { onOptionSelected(option) },
-                modifier = Modifier.padding(end = 4.dp)
+                modifier = Modifier.padding(end = 4.dp),
+                colors = RadioButtonDefaults.colors()
             )
             // Adjust Text width
             Box(modifier = Modifier.weight(1f)) {

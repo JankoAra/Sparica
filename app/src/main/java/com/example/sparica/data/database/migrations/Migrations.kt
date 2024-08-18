@@ -78,3 +78,9 @@ val MIGRATION_10_11 = object:Migration(10,11){
         db.execSQL("Alter table 'budgets' add column 'defaultCurrency' text not null default 'RSD'")
     }
 }
+
+val MIGRATION_11_12 = object:Migration(11,12){
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("delete from 'spending_category' where name = 'Miscellaneous'")
+    }
+}

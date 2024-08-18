@@ -13,6 +13,7 @@ import com.example.sparica.data.dao.SpendingCategoryDao
 import com.example.sparica.data.dao.SpendingDao
 import com.example.sparica.data.dao.SpendingSubcategoryDao
 import com.example.sparica.data.database.migrations.MIGRATION_10_11
+import com.example.sparica.data.database.migrations.MIGRATION_11_12
 import com.example.sparica.data.database.migrations.MIGRATION_6_7
 import com.example.sparica.data.database.migrations.MIGRATION_7_8
 import com.example.sparica.data.database.migrations.MIGRATION_8_9
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Spending::class, SpendingCategory::class, SpendingSubcategory::class, ExchangeRate::class, Budget::class],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -54,7 +55,8 @@ abstract class SparicaDatabase : RoomDatabase() {
                         MIGRATION_7_8,
                         MIGRATION_8_9,
                         MIGRATION_9_10,
-                        MIGRATION_10_11
+                        MIGRATION_10_11,
+                        MIGRATION_11_12
                     )
                     .build()
                     .also {
@@ -131,8 +133,11 @@ abstract class SparicaDatabase : RoomDatabase() {
                 "Gas",
                 "etc"
             ),
-            "Miscellaneous" to listOf(
+            "Travel" to listOf(
                 "Accommodation",
+                "Plane",
+                "Roaming/SIM",
+                "Insurance",
                 "etc"
             ),
             "Uncategorized" to emptyList()
