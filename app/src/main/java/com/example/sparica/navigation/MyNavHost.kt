@@ -16,8 +16,10 @@ import com.example.sparica.data.models.Spending
 import com.example.sparica.ui.budgets.composables.BudgetsMainScreen
 import com.example.sparica.ui.budgets.composables.EditBudgetScreen
 import com.example.sparica.ui.exchange.composables.ExchangeRateTable
+import com.example.sparica.ui.spendings.composables.AllSpendingsForBudgetScreen
 import com.example.sparica.ui.spendings.composables.SingleBudgetScreen
 import com.example.sparica.ui.spendings.composables.SpendingDetailsScreen
+import com.example.sparica.ui.spendings.composables.SpendingFullStatsScreen
 import com.example.sparica.ui.spendings.composables.TrashCanScreen
 import com.example.sparica.util.CustomNavTypes
 import com.example.sparica.viewmodels.BudgetViewModel
@@ -78,6 +80,14 @@ fun MyNavHost() {
         composable<TrashCanRoute> {
             //show latest exchange rates
             TrashCanScreen(navController, spendingViewModel, budgetViewModel)
+        }
+        composable<AllSpendingsForBudgetRoute> {
+            //show latest exchange rates
+            AllSpendingsForBudgetScreen(navController, spendingViewModel, budgetViewModel)
+        }
+        composable<SpendingFullStatsRoute> {
+            //show latest exchange rates
+            SpendingFullStatsScreen(navController, spendingViewModel, budgetViewModel)
         }
     }
 }

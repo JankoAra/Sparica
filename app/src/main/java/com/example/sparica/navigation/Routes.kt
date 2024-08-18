@@ -22,3 +22,9 @@ object EditBudgetRoute  //Edit budget info screen(name, defaultCurrency)
 
 @Serializable
 object TrashCanRoute
+
+@Serializable
+object AllSpendingsForBudgetRoute
+
+@Serializable
+object SpendingFullStatsRoute

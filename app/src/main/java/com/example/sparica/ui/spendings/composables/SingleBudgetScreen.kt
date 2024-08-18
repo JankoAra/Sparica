@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,16 +43,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.models.SpendingCategory
+import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.navigation.AllSpendingsForBudgetRoute
 import com.example.sparica.navigation.BudgetsMainScreenRoute
 import com.example.sparica.navigation.EditBudgetRoute
 import com.example.sparica.navigation.ExchangeRateTableRoute
 import com.example.sparica.navigation.SpendingDetailsRoute
+import com.example.sparica.navigation.SpendingFullStatsRoute
 import com.example.sparica.navigation.TrashCanRoute
 import com.example.sparica.reporting.ReportUtils
 import com.example.sparica.reporting.noSpaces
@@ -80,12 +84,25 @@ fun SingleBudgetScreen(
     // Collect spendings data as a state
     val spendings by spendingViewModel.allSpendings.collectAsStateWithLifecycle(emptyList())
 
+    val categoryMap by spendingViewModel.subcategoryMap.collectAsStateWithLifecycle()
+
+
     // State to hold the converted total
     var selectedDisplayCurrency by rememberSaveable {
         mutableStateOf(
             activeBudget?.defaultCurrency ?: Currency.RSD
         )
     }
+    val spentPerCategory = spendingPerCategory(
+        spendings,
+        categoryMap.keys.toList(),
+        selectedDisplayCurrency,
+        convert = { s, c -> budgetViewModel.convert(s, c) }
+    )
+    val spentPerSubcategory = spendingPerSubcategory(
+        spendings, categoryMap, selectedDisplayCurrency, { s, c -> budgetViewModel.convert(s, c) }
+    )
+
     var budgetName by remember {
         mutableStateOf(activeBudget?.name ?: "")
     }
@@ -143,7 +160,6 @@ fun SingleBudgetScreen(
                                 scope.launch { drawerState.close() }
                             })
                         },
-
                     ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -221,7 +237,10 @@ fun SingleBudgetScreen(
                             titleLabel = budgetName,
                             actions = {
                                 IconButton(onClick = { navController.navigate(TrashCanRoute) }) {
-                                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Deleted spendings")
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Deleted spendings"
+                                    )
                                 }
                                 IconButton(onClick = { navController.navigate(ExchangeRateTableRoute) }) {
                                     ExchangeRateIcon()
@@ -286,7 +305,9 @@ fun SingleBudgetScreen(
                         }
 
                         // Insert the list of spendings
-                        items(spendings, key = { it.id }) { spending ->
+                        items(
+                            spendings.subList(0, minOf(spendings.size, 3)),
+                            key = { it.id }) { spending ->
                             SwipeToDeleteContainer(
                                 item = spending,
                                 onDelete = { spendingViewModel.markDeleted(spending) }) {
@@ -297,6 +318,73 @@ fun SingleBudgetScreen(
                                 ) { navController.navigate(SpendingDetailsRoute(spending)) }
                             }
                         }
+
+                        if (spendings.size > 0) {
+                            item {
+                                TextButton(onClick = {
+                                    navController.navigate(
+                                        AllSpendingsForBudgetRoute
+                                    )
+                                }) {
+                                    Text(text = "View all spendings")
+                                }
+                            }
+                        }
+                        item { Divider() }
+
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = "Stats",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                        for (cat in spentPerCategory.keys) {
+                            item {
+                                Row {
+                                    val temp = Spending(
+                                        price = spentPerCategory[cat]!!,
+                                        currency = selectedDisplayCurrency,
+                                        description = ""
+                                    )
+                                    Text(text = "${cat.name}: ${temp.getFormatedPrice()}")
+                                }
+                            }
+                        }
+                        item { Divider() }
+                        for (subcat in spentPerSubcategory.keys.toList()
+                            .subList(0, minOf(5, spentPerSubcategory.keys.size))) {
+                            item {
+                                Row {
+                                    val temp = Spending(
+                                        price = spentPerSubcategory[subcat]!!,
+                                        currency = selectedDisplayCurrency,
+                                        description = ""
+                                    )
+                                    val name = if (subcat.name.equals("etc")) {
+                                        val cat =
+                                            categoryMap.keys.first { it.id == subcat.categoryId }
+                                        "${cat.name} (etc)"
+                                    } else {
+                                        subcat.name
+                                    }
+                                    Text(text = "${name}: ${temp.getFormatedPrice()}")
+                                }
+                            }
+                        }
+                        item { 
+                            TextButton(onClick = {navController.navigate(SpendingFullStatsRoute)}) {
+                                Text(text = "View full stats")
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             }
@@ -305,4 +393,31 @@ fun SingleBudgetScreen(
 }
 
 
+fun spendingPerCategory(
+    spendings: List<Spending>,
+    categories: List<SpendingCategory>,
+    currency: Currency,
+    convert: (Spending, Currency) -> Spending
+): Map<SpendingCategory, Double> {
+    return categories
+        .associateWith { category ->
+            spendings
+                .filter { it.category?.name == category.name }
+                .sumOf { convert(it, currency).price }
+        }.toList().sortedByDescending { (_, v) -> v }.toMap()
+}
 
+fun spendingPerSubcategory(
+    spendings: List<Spending>,
+    categoryMap: Map<SpendingCategory, List<SpendingSubcategory>>,
+    currency: Currency,
+    convert: (Spending, Currency) -> Spending
+): Map<SpendingSubcategory, Double> {
+    val subcategories = categoryMap.flatMap { (_, v) -> v }
+    return subcategories.associateWith { subcat ->
+        spendings
+            .filter { s -> s.subcategory?.id == subcat.id }
+            .map { s -> convert(s, currency) }
+            .sumOf { it.price }
+    }.toList().sortedByDescending { (_, v) -> v }.toMap()
+}
