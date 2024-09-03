@@ -1,5 +1,6 @@
 package com.example.sparica.navigation
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -61,6 +62,7 @@ fun MyNavHost() {
         ) {
             //show details of a spending
             val args = it.toRoute<SpendingDetailsRoute>()
+            Log.d("MyNavHost", "Spending argument is ${args.spending}")
             SpendingDetailsScreen(
                 spending = args.spending,
                 onClickBack = { navController.popBackStack() },

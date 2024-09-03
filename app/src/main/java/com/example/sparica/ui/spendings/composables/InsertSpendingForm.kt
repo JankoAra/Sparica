@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sparica.data.models.Currency
-import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.data.models.createSpending
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
 
@@ -193,7 +193,16 @@ fun InsertSpendingForm(
             onClick = {
                 focusManager.clearFocus()
 
-                val spending = Spending(
+//                val spending = Spending(
+//                    description = description,
+//                    price = priceString.toDoubleOrNull() ?: 0.0,
+//                    category = selectedCategory,
+//                    subcategory = selectedSubcategory,
+//                    currency = selectedCurrency,
+//                    budgetID = budgetID
+//                )
+
+                val spending = createSpending(
                     description = description,
                     price = priceString.toDoubleOrNull() ?: 0.0,
                     category = selectedCategory,

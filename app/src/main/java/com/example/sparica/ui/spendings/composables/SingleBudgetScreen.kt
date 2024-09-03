@@ -315,7 +315,10 @@ fun SingleBudgetScreen(
                                     spending = spending,
                                     budgetViewModel = budgetViewModel,
                                     targetCurrency = selectedDisplayCurrency
-                                ) { navController.navigate(SpendingDetailsRoute(spending)) }
+                                ) {
+                                    Log.d("SpendingListItem", "Item $spending clicked")
+                                    navController.navigate(SpendingDetailsRoute(spending))
+                                }
                             }
                         }
 

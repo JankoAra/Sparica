@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,9 +40,9 @@ import com.example.sparica.data.models.SpendingSubcategory
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.viewmodels.SpendingViewModel
+import java.net.URLDecoder
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpendingDetailsScreen(
     spending: Spending,
@@ -77,7 +76,7 @@ fun SpendingDetailsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Description: ")
-                Text(text = spending.description)
+                Text(text = URLDecoder.decode(spending.description, "UTF-8"))
                 IconButton(onClick = { showDialogEditDescription = true }) {
                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit description")
                 }
@@ -92,6 +91,7 @@ fun SpendingDetailsScreen(
                         },
                         confirmButton = {
                             Button(onClick = {
+                                //spending.description = URLEncoder.encode(editedDescription, "UTF-8")
                                 spending.description = editedDescription
                                 updateSpending(spending)
                                 showDialogEditDescription = false
@@ -218,6 +218,18 @@ fun SpendingDetailsScreen(
                         },
                         confirmButton = {
                             Button(onClick = {
+//                                spending.category = editedCategory?.copy(
+//                                    name = URLEncoder.encode(
+//                                        editedCategory!!.name,
+//                                        "UTF-8"
+//                                    )
+//                                )
+//                                spending.subcategory = editedSubcategory?.copy(
+//                                    name = URLEncoder.encode(
+//                                        editedSubcategory!!.name,
+//                                        "UTF-8"
+//                                    )
+//                                )
                                 spending.category = editedCategory
                                 spending.subcategory = editedSubcategory
                                 updateSpending(spending)

@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.net.URLEncoder
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,8 +35,8 @@ data class Spending(
     val budgetID: Int? = null,
     var currency: Currency = Currency.RSD,
     @Contextual var date: LocalDateTime = LocalDateTime.now(),
-    var deleted:Boolean = false,
-    @Contextual var dateDeleted:LocalDate? = null
+    var deleted: Boolean = false,
+    @Contextual var dateDeleted: LocalDate? = null
 
 ) : Parcelable {
 
@@ -67,4 +68,36 @@ data class Spending(
             return "id,description,price,currency,category,subcategory,date,time"
         }
     }
+}
+
+fun createSpending(
+    id: Int = 0,
+    description: String,
+    price: Double,
+    category: SpendingCategory?,
+    subcategory: SpendingSubcategory?,
+    budgetID: Int?,
+    currency: Currency = Currency.RSD,
+    date: LocalDateTime = LocalDateTime.now(),
+    deleted: Boolean = false,
+    dateDeleted: LocalDate? = null
+): Spending {
+//    val encodedDescription = URLEncoder.encode(description, "UTF-8")
+//    val encodedCategory = category?.copy(name = URLEncoder.encode(category.name, "UTF-8"))
+//    val encodedSubcategory = subcategory?.copy(name = URLEncoder.encode(subcategory.name, "UTF-8"))
+    val encodedDescription = description
+    val encodedCategory = category
+    val encodedSubcategory = subcategory
+    return Spending(
+        id,
+        encodedDescription,
+        price,
+        encodedCategory,
+        encodedSubcategory,
+        budgetID,
+        currency,
+        date,
+        deleted,
+        dateDeleted
+    )
 }

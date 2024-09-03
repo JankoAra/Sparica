@@ -32,6 +32,8 @@ import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 @Composable
 fun SpendingListItem(
@@ -80,7 +82,7 @@ fun SpendingListItemContent(
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = spending.description,
+                text = URLDecoder.decode(spending.description, "UTF-8"),
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
             )
             Text(
