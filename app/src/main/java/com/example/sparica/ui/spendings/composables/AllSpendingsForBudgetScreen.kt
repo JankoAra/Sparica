@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.navigation.SpendingDetailsRoute
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.ui.util.NavigateBackIconButton
@@ -40,6 +41,7 @@ fun AllSpendingsForBudgetScreen(
     modifier: Modifier = Modifier
 ) {
     val spendings by spendingViewModel.allSpendings.collectAsStateWithLifecycle()
+    val info by spendingViewModel.spendingInfo.collectAsStateWithLifecycle()
     val activeBudget by budgetViewModel.activeBudget.collectAsStateWithLifecycle()
     var selectedDisplayCurrency by rememberSaveable {
         mutableStateOf(activeBudget?.defaultCurrency ?: Currency.RSD)
@@ -108,15 +110,16 @@ fun AllSpendingsForBudgetScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            items(spendings, key = { it.id }) { spending ->
+            items(info, key = { it.id }) { i ->
+                val spending = extractSpendingFromInfo(i)
                 SwipeToDeleteContainer(
                     item = spending,
                     onDelete = { spendingViewModel.markDeleted(spending) }) {
                     SpendingListItem(
-                        spending = spending,
+                        info = i,
                         budgetViewModel = budgetViewModel,
                         targetCurrency = selectedDisplayCurrency
-                    ) { navController.navigate(SpendingDetailsRoute(spending)) }
+                    ) { navController.navigate(SpendingDetailsRoute(i)) }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }

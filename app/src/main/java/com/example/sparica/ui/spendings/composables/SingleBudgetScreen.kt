@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -52,6 +53,8 @@ import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.data.query_objects.SpendingInfo
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.navigation.AllSpendingsForBudgetRoute
 import com.example.sparica.navigation.BudgetsMainScreenRoute
 import com.example.sparica.navigation.EditBudgetRoute
@@ -84,6 +87,8 @@ fun SingleBudgetScreen(
     // Collect spendings data as a state
     val spendings by spendingViewModel.allSpendings.collectAsStateWithLifecycle(emptyList())
 
+    val spendingInfo by spendingViewModel.spendingInfo.collectAsStateWithLifecycle(emptyList())
+
     val categoryMap by spendingViewModel.subcategoryMap.collectAsStateWithLifecycle()
 
 
@@ -94,13 +99,19 @@ fun SingleBudgetScreen(
         )
     }
     val spentPerCategory = spendingPerCategory(
-        spendings,
+        spendingInfo,
         categoryMap.keys.toList(),
         selectedDisplayCurrency,
-        convert = { s, c -> budgetViewModel.convert(s, c) }
+        convert = { info, c ->
+            budgetViewModel.convert(extractSpendingFromInfo(info), c)
+        }
     )
     val spentPerSubcategory = spendingPerSubcategory(
-        spendings, categoryMap, selectedDisplayCurrency, { s, c -> budgetViewModel.convert(s, c) }
+        spendingInfo, categoryMap, selectedDisplayCurrency, convert = { info, c ->
+            budgetViewModel.convert(
+                extractSpendingFromInfo(info), c
+            )
+        }
     )
 
     var budgetName by remember {
@@ -160,7 +171,7 @@ fun SingleBudgetScreen(
                                 scope.launch { drawerState.close() }
                             })
                         },
-                    ) {
+                ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "Options",
@@ -175,7 +186,7 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.csv",
-                                    spendingsToCSV(spendings, activeBudget!!) { s, c ->
+                                    spendingsToCSV(spendingInfo, activeBudget!!) { s, c ->
                                         budgetViewModel.convert(s, c)
                                     }
                                 )
@@ -190,7 +201,7 @@ fun SingleBudgetScreen(
                                 val timestamp = LocalDateTime.now().noSpaces()
                                 ReportUtils.createFile(
                                     "report$timestamp.pdf",
-                                    spendingsToCSV(spendings, activeBudget!!) { s, c ->
+                                    spendingsToCSV(spendingInfo, activeBudget!!) { s, c ->
                                         budgetViewModel.convert(s, c)
                                     }
                                 )
@@ -265,6 +276,33 @@ fun SingleBudgetScreen(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp) // Add horizontal padding to content
                     ) {
+                        item{
+                            Button(onClick = {
+                                if(spendingInfo.isNotEmpty()){
+                                    spendingInfo.forEach {
+                                        Log.d("SpendingsInfo", it.toString())
+                                    }
+                                }else{
+                                    Log.d("SpendingsInfo", "info is empty")
+                                }
+
+                            }) {
+                                Text(text = "Print info")
+                            }
+                            Button(onClick = {
+                                if(spendings.isNotEmpty()){
+                                    spendings.forEach {
+                                        Log.d("Spendings", it.toString())
+                                    }
+                                }else{
+                                    Log.d("Spendings", "spendings is empty")
+                                }
+
+                            }) {
+                                Text(text = "Print spendings")
+                            }
+                        }
+
                         // Insert the form as the first item
                         item {
                             InsertSpendingForm(spendingViewModel, budgetViewModel, budgetID)
@@ -306,23 +344,23 @@ fun SingleBudgetScreen(
 
                         // Insert the list of spendings
                         items(
-                            spendings.subList(0, minOf(spendings.size, 3)),
-                            key = { it.id }) { spending ->
+                            spendingInfo.subList(0, minOf(spendingInfo.size, 3)),
+                            key = { it.id }) { info ->
+                            val spending = extractSpendingFromInfo(info)
                             SwipeToDeleteContainer(
                                 item = spending,
                                 onDelete = { spendingViewModel.markDeleted(spending) }) {
                                 SpendingListItem(
-                                    spending = spending,
+                                    info = info,
                                     budgetViewModel = budgetViewModel,
                                     targetCurrency = selectedDisplayCurrency
                                 ) {
-                                    Log.d("SpendingListItem", "Item $spending clicked")
-                                    navController.navigate(SpendingDetailsRoute(spending))
+                                    navController.navigate(SpendingDetailsRoute(info))
                                 }
                             }
                         }
 
-                        if (spendings.size > 0) {
+                        if (spendingInfo.size > 0) {
                             item {
                                 TextButton(onClick = {
                                     navController.navigate(
@@ -382,8 +420,8 @@ fun SingleBudgetScreen(
                                 }
                             }
                         }
-                        item { 
-                            TextButton(onClick = {navController.navigate(SpendingFullStatsRoute)}) {
+                        item {
+                            TextButton(onClick = { navController.navigate(SpendingFullStatsRoute) }) {
                                 Text(text = "View full stats")
                             }
                             Spacer(modifier = Modifier.height(8.dp))
@@ -397,29 +435,29 @@ fun SingleBudgetScreen(
 
 
 fun spendingPerCategory(
-    spendings: List<Spending>,
+    spendings: List<SpendingInfo>,
     categories: List<SpendingCategory>,
     currency: Currency,
-    convert: (Spending, Currency) -> Spending
+    convert: (SpendingInfo, Currency) -> Spending
 ): Map<SpendingCategory, Double> {
     return categories
         .associateWith { category ->
             spendings
-                .filter { it.category?.name == category.name }
+                .filter { it.categoryName == category.name }
                 .sumOf { convert(it, currency).price }
         }.toList().sortedByDescending { (_, v) -> v }.toMap()
 }
 
 fun spendingPerSubcategory(
-    spendings: List<Spending>,
+    spendings: List<SpendingInfo>,
     categoryMap: Map<SpendingCategory, List<SpendingSubcategory>>,
     currency: Currency,
-    convert: (Spending, Currency) -> Spending
+    convert: (SpendingInfo, Currency) -> Spending
 ): Map<SpendingSubcategory, Double> {
     val subcategories = categoryMap.flatMap { (_, v) -> v }
     return subcategories.associateWith { subcat ->
         spendings
-            .filter { s -> s.subcategory?.id == subcat.id }
+            .filter { s -> s.subcategoryID == subcat.id }
             .map { s -> convert(s, currency) }
             .sumOf { it.price }
     }.toList().sortedByDescending { (_, v) -> v }.toMap()

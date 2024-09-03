@@ -205,8 +205,8 @@ fun InsertSpendingForm(
                 val spending = createSpending(
                     description = description,
                     price = priceString.toDoubleOrNull() ?: 0.0,
-                    category = selectedCategory,
-                    subcategory = selectedSubcategory,
+                    category = selectedCategory?.id,
+                    subcategory = selectedSubcategory?.id,
                     currency = selectedCurrency,
                     budgetID = budgetID
                 )

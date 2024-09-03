@@ -1,6 +1,7 @@
 package com.example.sparica.navigation
 
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.SpendingInfo
 import kotlinx.serialization.Serializable
 
 
@@ -12,7 +13,7 @@ data class BudgetDashboardRoute(val budgetID: Int)   //Shows list of spendings f
 
 
 @Serializable
-data class SpendingDetailsRoute(val spending: Spending) //Details for a single spending
+data class SpendingDetailsRoute(val info: SpendingInfo) //Details for a single spending
 
 @Serializable
 object ExchangeRateTableRoute   // Today's exchange rates table

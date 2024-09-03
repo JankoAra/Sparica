@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,10 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.viewmodels.BudgetViewModel
 import com.example.sparica.viewmodels.SpendingViewModel
+import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +54,7 @@ fun TrashCanScreen(
         },
     ) {
         val deletedSpendings by spendingViewModel.deletedSpendings.collectAsStateWithLifecycle()
+        val deletedInfo by spendingViewModel.spendingInfoAll.collectAsStateWithLifecycle()
         var showDialog by remember {
             mutableStateOf(false)
         }
@@ -61,14 +63,14 @@ fun TrashCanScreen(
         }
         LazyColumn(modifier = Modifier.padding(it)) {
 
-            items(deletedSpendings, key = { it.id }) { s ->
+            items(deletedInfo.filter { it.deleted }, key = { it.id }) { s ->
                 SpendingListItem(
-                    spending = s,
+                    info = s,
                     budgetViewModel = budgetViewModel,
                     targetCurrency = s.currency,
                     onTap = {
                         showDialog = true
-                        dialogSpending = s
+                        dialogSpending = extractSpendingFromInfo(s)
                         println("Delete items click, $s")
                     }
                 )

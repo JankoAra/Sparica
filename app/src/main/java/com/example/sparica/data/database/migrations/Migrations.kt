@@ -84,3 +84,42 @@ val MIGRATION_11_12 = object:Migration(11,12){
         db.execSQL("delete from 'spending_category' where name = 'Miscellaneous'")
     }
 }
+
+val MIGRATION_12_13 = object:Migration(12,13){
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Step 1: Create the new table with the updated schema
+        db.execSQL("""
+            CREATE TABLE `spendings_new` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `description` TEXT NOT NULL,
+                `price` REAL NOT NULL,
+                `categoryID` INTEGER NULL,
+                `subcategoryID` INTEGER NULL,
+                `budgetID` INTEGER,
+                `currency` TEXT NOT NULL,
+                `date` INTEGER NOT NULL,
+                `deleted` INTEGER NOT NULL DEFAULT 0,
+                `dateDeleted` TEXT,
+                FOREIGN KEY(`budgetID`) REFERENCES `budgets`(`id`) ON DELETE CASCADE,
+                FOREIGN KEY(`categoryID`) REFERENCES `spending_category`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY(`subcategoryID`) REFERENCES `spending_subcategory`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+            )
+        """.trimIndent())
+
+        // Step 2: Copy the data from the old table to the new table
+        db.execSQL("""
+            INSERT INTO `spendings_new` (`id`, `description`, `price`, `categoryID`, `subcategoryID`, `budgetID`, `currency`, `date`, `deleted`, `dateDeleted`)
+            SELECT `id`, `description`, `price`, null, null, `budgetID`, `currency`, `date`, `deleted`, `dateDeleted`
+            FROM `spendings`
+        """.trimIndent())
+
+        // Step 3: Drop the old table
+        db.execSQL("DROP TABLE `spendings`")
+
+        // Step 4: Rename the new table to the old table's name
+        db.execSQL("ALTER TABLE `spendings_new` RENAME TO `spendings`")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_spendings_budgetID` ON `spendings` (`budgetID`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_spendings_categoryID` ON `spendings` (`categoryID`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_spendings_subcategoryID` ON `spendings` (`subcategoryID`)")
+    }
+}

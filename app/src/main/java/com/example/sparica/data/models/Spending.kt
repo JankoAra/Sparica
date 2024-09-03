@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.net.URLEncoder
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,20 +17,40 @@ import java.time.LocalDateTime
 @Parcelize
 @Entity(
     tableName = "spendings",
-    foreignKeys = [ForeignKey(
-        entity = Budget::class,
-        parentColumns = ["id"],
-        childColumns = ["budgetID"],
-        onDelete = ForeignKey.CASCADE // Optionally, delete subcategories if the category is deleted
-    )],
-    indices = [Index(value = ["budgetID"])]
+    foreignKeys = [
+        ForeignKey(
+            entity = Budget::class,
+            parentColumns = ["id"],
+            childColumns = ["budgetID"],
+            onDelete = ForeignKey.CASCADE // Optionally, delete subcategories if the category is deleted
+        ),
+        ForeignKey(
+            entity = SpendingCategory::class,
+            parentColumns = ["id"],
+            childColumns = ["categoryID"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = SpendingSubcategory::class,
+            parentColumns = ["id"],
+            childColumns = ["subcategoryID"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+    ],
+    indices = [
+        Index(value = ["budgetID"]),
+        Index(value = ["categoryID"]),
+        Index(value = ["subcategoryID"])
+    ]
 )
 data class Spending(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var description: String,
     var price: Double,
-    var category: SpendingCategory? = null,
-    var subcategory: SpendingSubcategory? = null,
+    var categoryID: Int? = null,
+    var subcategoryID: Int? = null,
     val budgetID: Int? = null,
     var currency: Currency = Currency.RSD,
     @Contextual var date: LocalDateTime = LocalDateTime.now(),
@@ -56,17 +75,7 @@ data class Spending(
     }
 
     override fun toString(): String {
-        return "Spending(id=$id, description='$description', price=${getFormatedPrice()}, category=$category, subcategory=$subcategory, date=$date)"
-    }
-
-    fun asCsv(): String {
-        return "$id,$description,$price,$currency,$category,$subcategory,${date.toLocalDate()},${date.toLocalTime()}"
-    }
-
-    companion object {
-        fun csvHeader(): String {
-            return "id,description,price,currency,category,subcategory,date,time"
-        }
+        return "Spending(id=$id, description='$description', price=${getFormatedPrice()}, category=$categoryID, subcategory=$subcategoryID, date=$date)"
     }
 }
 
@@ -74,26 +83,21 @@ fun createSpending(
     id: Int = 0,
     description: String,
     price: Double,
-    category: SpendingCategory?,
-    subcategory: SpendingSubcategory?,
+    category: Int?,
+    subcategory: Int?,
     budgetID: Int?,
     currency: Currency = Currency.RSD,
     date: LocalDateTime = LocalDateTime.now(),
     deleted: Boolean = false,
     dateDeleted: LocalDate? = null
 ): Spending {
-//    val encodedDescription = URLEncoder.encode(description, "UTF-8")
-//    val encodedCategory = category?.copy(name = URLEncoder.encode(category.name, "UTF-8"))
-//    val encodedSubcategory = subcategory?.copy(name = URLEncoder.encode(subcategory.name, "UTF-8"))
     val encodedDescription = description
-    val encodedCategory = category
-    val encodedSubcategory = subcategory
     return Spending(
         id,
         encodedDescription,
         price,
-        encodedCategory,
-        encodedSubcategory,
+         category,
+        subcategory,
         budgetID,
         currency,
         date,

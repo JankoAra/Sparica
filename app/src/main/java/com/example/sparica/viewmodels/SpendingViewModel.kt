@@ -8,6 +8,7 @@ import com.example.sparica.data.database.SparicaDatabase
 import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.data.query_objects.SpendingInfo
 import com.example.sparica.data.repositories.impl.SpendingCategoryRepositoryImpl
 import com.example.sparica.data.repositories.interfaces.SpendingRepository
 import com.example.sparica.data.repositories.impl.SpendingRepositoryImpl
@@ -44,6 +45,11 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
     private val _deletedSpendings = MutableStateFlow<List<Spending>>(emptyList())
     val deletedSpendings = _deletedSpendings.asStateFlow()
 
+    private val _spendingsInfo = MutableStateFlow<List<SpendingInfo>>(emptyList())
+    val spendingInfo = _spendingsInfo.asStateFlow()
+
+    private val _spendingInfoAll = MutableStateFlow<List<SpendingInfo>>(emptyList())
+    val spendingInfoAll = _spendingInfoAll.asStateFlow()
 
 
     init {
@@ -81,9 +87,16 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
             _subcategoryMap.value = subcategoryMap
         }
         viewModelScope.launch {
-            spendingRepository.getAllDeletedSpendings().collect{deleted ->
+            spendingRepository.getAllDeletedSpendings().collect { deleted ->
                 _deletedSpendings.update {
                     deleted
+                }
+            }
+        }
+        viewModelScope.launch {
+            spendingRepository.getSpendingInfoAll().collect{all->
+                _spendingInfoAll.update {
+                    all
                 }
             }
         }
@@ -92,13 +105,24 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
     }
 
     private var currentJobCollectSpendings: Job? = null
-
     fun getSpendingsForBudget(budgetID: Int) {
         currentJobCollectSpendings?.cancel()  // Cancel any previous collection
         currentJobCollectSpendings = viewModelScope.launch {
             spendingRepository.getAllSpendingsForBudgetStream(budgetID).collect { newSpendings ->
                 _allSpendings.update {
                     newSpendings
+                }
+            }
+        }
+    }
+
+    private var currentJobCollectSpendingInfo: Job? = null
+    fun getSpendingInfoForBudget(budgetID: Int) {
+        currentJobCollectSpendingInfo?.cancel()
+        currentJobCollectSpendingInfo = viewModelScope.launch {
+            spendingRepository.getSpendingInfoForBudget(budgetID).collect { newInfo ->
+                _spendingsInfo.update {
+                    newInfo
                 }
             }
         }
@@ -116,7 +140,7 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun updateSpending(spending: Spending){
+    fun updateSpending(spending: Spending) {
         viewModelScope.launch {
             spendingRepository.updateSpending(spending)
         }

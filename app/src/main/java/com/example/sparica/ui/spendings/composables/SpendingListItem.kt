@@ -27,17 +27,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.SpendingInfo
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.viewmodels.BudgetViewModel
-import com.example.sparica.viewmodels.SpendingViewModel
 import java.net.URLDecoder
-import java.net.URLEncoder
 
 @Composable
 fun SpendingListItem(
-    spending: Spending,
+    info: SpendingInfo,
     budgetViewModel: BudgetViewModel,
     targetCurrency: Currency,
     onTap: () -> Unit
@@ -47,12 +46,15 @@ fun SpendingListItem(
             0.0
         )
     }
+    var spending by rememberSaveable {
+        mutableStateOf(extractSpendingFromInfo(info))
+    }
     LaunchedEffect(targetCurrency) {
         convertedPrice = budgetViewModel.convert(spending, targetCurrency).price
 
     }
     SpendingListItemContent(
-        spending = spending,
+        info = info,
         toDetails = { onTap() },
         convertedPrice = convertedPrice,
         targetCurrency = targetCurrency
@@ -62,11 +64,14 @@ fun SpendingListItem(
 
 @Composable
 fun SpendingListItemContent(
-    spending: Spending,
+    info: SpendingInfo,
     toDetails: () -> Unit,
     convertedPrice: Double,
     targetCurrency: Currency
 ) {
+    var spending by rememberSaveable {
+        mutableStateOf(extractSpendingFromInfo(info))
+    }
     TextButton(
         onClick = { toDetails() },
         shape = RectangleShape,
@@ -82,15 +87,15 @@ fun SpendingListItemContent(
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = URLDecoder.decode(spending.description, "UTF-8"),
+                text = URLDecoder.decode(info.description, "UTF-8"),
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
             )
             Text(
-                text = spending.category.toString(),
+                text = info.categoryName ?: "null",
                 style = TextStyle(fontSize = 14.sp)
             )
-            spending.subcategory?.let {
-                Text(text = "($it)", style = TextStyle(fontSize = 12.sp))
+            info.subcategoryID?.let {
+                Text(text = "(${info.subcategoryName})", style = TextStyle(fontSize = 12.sp))
             }
         }
         Column(
@@ -111,13 +116,4 @@ fun SpendingListItemContent(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSpendingListItemContent() {
-    val spending: Spending = Spending(0, "hamburgeri", 3444.0, null)
-    val spending2: Spending =
-        Spending(0, "hamburgerisdahdsghsagdsgdsadsh523dsfasdahhsda", 35453244.0, null)
-    SpendingListItemContent(spending, {}, 3.4, Currency.EUR)
 }

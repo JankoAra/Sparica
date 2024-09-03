@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.viewmodels.BudgetViewModel
@@ -39,6 +40,7 @@ fun SpendingFullStatsScreen(
 
     // Collect spendings data as a state
     val spendings by spendingViewModel.allSpendings.collectAsStateWithLifecycle(emptyList())
+    val info by spendingViewModel.spendingInfo.collectAsStateWithLifecycle(emptyList())
 
     val categoryMap by spendingViewModel.subcategoryMap.collectAsStateWithLifecycle()
 
@@ -50,13 +52,17 @@ fun SpendingFullStatsScreen(
         )
     }
     val spentPerCategory = spendingPerCategory(
-        spendings,
+        info,
         categoryMap.keys.toList(),
         selectedDisplayCurrency,
-        convert = { s, c -> budgetViewModel.convert(s, c) }
+        convert = { s, c -> budgetViewModel.convert(extractSpendingFromInfo(s), c) }
     )
     val spentPerSubcategory = spendingPerSubcategory(
-        spendings, categoryMap, selectedDisplayCurrency, { s, c -> budgetViewModel.convert(s, c) }
+        info, categoryMap, selectedDisplayCurrency, convert = { s, c ->
+            budgetViewModel.convert(
+                extractSpendingFromInfo(s), c
+            )
+        }
     )
 
     Scaffold(

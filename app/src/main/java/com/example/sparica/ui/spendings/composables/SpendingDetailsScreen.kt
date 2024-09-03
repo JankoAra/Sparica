@@ -36,7 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
+import com.example.sparica.data.query_objects.SpendingInfo
+import com.example.sparica.data.query_objects.extractSpendingFromInfo
 import com.example.sparica.ui.util.MyTopAppBar
 import com.example.sparica.ui.util.NavigateBackIconButton
 import com.example.sparica.viewmodels.SpendingViewModel
@@ -45,7 +48,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun SpendingDetailsScreen(
-    spending: Spending,
+    info: SpendingInfo,
     onClickBack: () -> Unit,
     updateSpending: (Spending) -> Unit,
     spendingViewModel: SpendingViewModel
@@ -66,6 +69,9 @@ fun SpendingDetailsScreen(
         var showDialogEditCategory by rememberSaveable {
             mutableStateOf(false)
         }
+        val spending by rememberSaveable {
+            mutableStateOf(extractSpendingFromInfo(info))
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,18 +82,18 @@ fun SpendingDetailsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Description: ")
-                Text(text = URLDecoder.decode(spending.description, "UTF-8"))
+                Text(text = URLDecoder.decode(info.description, "UTF-8"))
                 IconButton(onClick = { showDialogEditDescription = true }) {
                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit description")
                 }
                 if (showDialogEditDescription) {
                     var editedDescription by remember {
-                        mutableStateOf(spending.description)
+                        mutableStateOf(info.description)
                     }
                     AlertDialog(
                         onDismissRequest = {
                             showDialogEditDescription = false
-                            editedDescription = spending.description
+                            editedDescription = info.description
                         },
                         confirmButton = {
                             Button(onClick = {
@@ -131,16 +137,16 @@ fun SpendingDetailsScreen(
                 }
                 if (showDialogEditPrice) {
                     var editedPrice by remember {
-                        mutableStateOf(spending.price.toString())
+                        mutableStateOf(info.price.toString())
                     }
                     var editedCurrency by remember {
-                        mutableStateOf(spending.currency)
+                        mutableStateOf(info.currency)
                     }
                     AlertDialog(
                         onDismissRequest = {
                             showDialogEditPrice = false
-                            editedPrice = spending.price.toString()
-                            editedCurrency = spending.currency
+                            editedPrice = info.price.toString()
+                            editedCurrency = info.currency
                         },
                         confirmButton = {
                             Button(onClick = {
@@ -194,44 +200,32 @@ fun SpendingDetailsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Category:")
-                val subcatText = if (spending.subcategory == null) {
+                val subcatText = if (info.subcategoryID == null) {
                     ""
                 } else {
-                    "(${spending.subcategory!!.name})"
+                    "(${info.subcategoryName})"
                 }
-                Text(text = spending.category.toString() + subcatText)
+                Text(text = info.categoryName + subcatText)
                 IconButton(onClick = { showDialogEditCategory = true }) {
                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit description")
                 }
                 if (showDialogEditCategory) {
                     var editedCategory by remember {
-                        mutableStateOf(spending.category)
+                        mutableStateOf(info.categoryID)
                     }
                     var editedSubcategory by remember {
-                        mutableStateOf(spending.subcategory)
+                        mutableStateOf(info.subcategoryID)
                     }
                     AlertDialog(
                         onDismissRequest = {
                             showDialogEditCategory = false
-                            editedCategory = spending.category
-                            editedSubcategory = spending.subcategory
+                            editedCategory = info.categoryID
+                            editedSubcategory = info.subcategoryID
                         },
                         confirmButton = {
                             Button(onClick = {
-//                                spending.category = editedCategory?.copy(
-//                                    name = URLEncoder.encode(
-//                                        editedCategory!!.name,
-//                                        "UTF-8"
-//                                    )
-//                                )
-//                                spending.subcategory = editedSubcategory?.copy(
-//                                    name = URLEncoder.encode(
-//                                        editedSubcategory!!.name,
-//                                        "UTF-8"
-//                                    )
-//                                )
-                                spending.category = editedCategory
-                                spending.subcategory = editedSubcategory
+                                spending.categoryID = editedCategory
+                                spending.subcategoryID = editedSubcategory
                                 updateSpending(spending)
                                 showDialogEditCategory = false
                             }) {
@@ -249,20 +243,21 @@ fun SpendingDetailsScreen(
                                     style = MaterialTheme.typography.titleLarge
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
-                                RadioButtonGrid(
-                                    options = categories,
+                                RadioButtonGrid<Int>(
+                                    options = categories.map { it.id },
                                     selectedOption = editedCategory,
                                     onOptionSelected = {
                                         editedCategory = it
                                         editedSubcategory = null
                                     },
-                                    labelProvider = { it.name }
+                                    labelProvider = { categories.filter { cat->cat.id==it }.first().name }
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 // Display subcategories for the selected category
                                 editedCategory?.let { category ->
-                                    val subcategories = subcategoryMap[category] ?: emptyList()
+                                    val categoryObject = categories.filter { cat->cat.id==category }.first()
+                                    val subcategories = subcategoryMap[categoryObject] ?: emptyList()
                                     if (subcategories.isEmpty()) {
                                         editedSubcategory = null
                                         return@let
@@ -271,24 +266,24 @@ fun SpendingDetailsScreen(
                                         var etcIndex = subcategories.indexOf(
                                             SpendingSubcategory(
                                                 name = "etc",
-                                                categoryId = editedCategory!!.id,
+                                                categoryId = category,
                                                 order = 0
                                             )
                                         )
                                         if (etcIndex == -1) {
                                             etcIndex = 0
                                         }
-                                        editedSubcategory = subcategories[etcIndex]
+                                        editedSubcategory = subcategories[etcIndex].id
                                     }
                                     Text(
                                         text = "Subcategory",
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                     RadioButtonGrid(
-                                        options = subcategories,
+                                        options = subcategories.map { it.id },
                                         selectedOption = editedSubcategory,
                                         onOptionSelected = { editedSubcategory = it },
-                                        labelProvider = { it.name }
+                                        labelProvider = { subcategories.filter { sub->sub.id==it }.first().name }
                                     )
                                 }
                             }
@@ -305,13 +300,13 @@ fun SpendingDetailsScreen(
                 }
                 Text(text = "Date and time:")
                 val formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm")
-                Text(text = spending.date.format(formatter))
+                Text(text = info.date.format(formatter))
                 IconButton(onClick = { showDialogEditDatetime = true }) {
                     Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit date and time")
                 }
                 if (showDialogEditDatetime) {
                     var editedDate by remember {
-                        mutableStateOf(spending.date)
+                        mutableStateOf(info.date)
                     }
                     // Date and Time picker dialogs
                     val context = LocalContext.current
@@ -341,7 +336,7 @@ fun SpendingDetailsScreen(
                     AlertDialog(
                         onDismissRequest = {
                             showDialogEditDatetime = false
-                            editedDate = spending.date
+                            editedDate = info.date
                         },
                         confirmButton = {
                             Button(onClick = {

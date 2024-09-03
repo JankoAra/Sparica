@@ -6,14 +6,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.sparica.data.models.Spending
+import com.example.sparica.data.query_objects.SpendingInfo
 import com.example.sparica.ui.budgets.composables.BudgetsMainScreen
 import com.example.sparica.ui.budgets.composables.EditBudgetScreen
 import com.example.sparica.ui.exchange.composables.ExchangeRateTable
@@ -51,20 +50,22 @@ fun MyNavHost() {
             //show details for a single budget(spendings, reporting...)
             val args = it.toRoute<BudgetDashboardRoute>()
             spendingViewModel.getSpendingsForBudget(args.budgetID)
+            spendingViewModel.getSpendingInfoForBudget(args.budgetID)
             LaunchedEffect(Unit) {
                 budgetViewModel.setActiveBudgetById(args.budgetID)
                 spendingViewModel.getSpendingsForBudget(args.budgetID)
+                spendingViewModel.getSpendingInfoForBudget(args.budgetID)
             }
             SingleBudgetScreen(navController, spendingViewModel, budgetViewModel, args.budgetID)
         }
         composable<SpendingDetailsRoute>(
-            typeMap = mapOf(typeOf<Spending>() to CustomNavTypes.SpendingType)
+            typeMap = mapOf(typeOf<SpendingInfo>() to CustomNavTypes.SpendingInfoType)
         ) {
             //show details of a spending
             val args = it.toRoute<SpendingDetailsRoute>()
-            Log.d("MyNavHost", "Spending argument is ${args.spending}")
+            Log.d("MyNavHost", "Spending argument is ${args.info}")
             SpendingDetailsScreen(
-                spending = args.spending,
+                info = args.info,
                 onClickBack = { navController.popBackStack() },
                 updateSpending = { s ->
                     spendingViewModel.updateSpending(s)
