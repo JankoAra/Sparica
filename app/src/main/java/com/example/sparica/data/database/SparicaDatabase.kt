@@ -15,6 +15,7 @@ import com.example.sparica.data.dao.SpendingSubcategoryDao
 import com.example.sparica.data.database.migrations.MIGRATION_10_11
 import com.example.sparica.data.database.migrations.MIGRATION_11_12
 import com.example.sparica.data.database.migrations.MIGRATION_12_13
+import com.example.sparica.data.database.migrations.MIGRATION_13_14
 import com.example.sparica.data.database.migrations.MIGRATION_6_7
 import com.example.sparica.data.database.migrations.MIGRATION_7_8
 import com.example.sparica.data.database.migrations.MIGRATION_8_9
@@ -31,7 +32,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Spending::class, SpendingCategory::class, SpendingSubcategory::class, ExchangeRate::class, Budget::class],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -58,7 +59,8 @@ abstract class SparicaDatabase : RoomDatabase() {
                         MIGRATION_9_10,
                         MIGRATION_10_11,
                         MIGRATION_11_12,
-                        MIGRATION_12_13
+                        MIGRATION_12_13,
+                        MIGRATION_13_14
                     )
                     .build()
                     .also {
@@ -102,27 +104,32 @@ abstract class SparicaDatabase : RoomDatabase() {
                 "Breakfast",
                 "Lunch",
                 "Dinner",
-                "Market",
+                "Sweets & Drinks",
+                "Water",
+                "Supermarket",
                 "etc"
             ),
             "Shopping" to listOf(
                 "Clothes",
                 "Tech",
                 "Books",
-                "Media",
+                "Souvenirs",
+                "Gifts",
+                "Albums",
                 "Cosmetics",
                 "Medicine",
                 "etc"
             ),
-            "Souvenirs" to listOf(
-                "Personal",
-                "Family",
-                "Friends",
-                "etc"
-            ),
+//            "Souvenirs" to listOf(
+//                "Personal",
+//                "Family",
+//                "Friends",
+//                "etc"
+//            ),
             "Attractions" to listOf(
-                "Museum",
-                "Entertainment",
+                "Museums",
+                "Games",
+                "Cinema",
                 "etc"
             ),
             "Transport" to listOf(
@@ -130,7 +137,7 @@ abstract class SparicaDatabase : RoomDatabase() {
                 "Bus",
                 "Subway",
                 "Train",
-                "Car",
+                "Taxi",
                 "Ferry",
                 "Gas",
                 "etc"
@@ -138,8 +145,11 @@ abstract class SparicaDatabase : RoomDatabase() {
             "Travel" to listOf(
                 "Accommodation",
                 "Plane",
-                "Roaming/SIM",
+                "Train",
+                "Bus",
+                "Roaming & SIM",
                 "Insurance",
+                "Tour",
                 "etc"
             ),
             "Uncategorized" to emptyList()
@@ -149,9 +159,24 @@ abstract class SparicaDatabase : RoomDatabase() {
             spendingCategoryDao: SpendingCategoryDao,
             spendingSubcategoryDao: SpendingSubcategoryDao
         ) {
-            // Insert categories and their subcategories
+            //disable all existing categories and subcategories
+            val dbCategories = spendingCategoryDao.getAllCategoriesSync()
+            dbCategories.forEach {
+                it.enabled = false
+                spendingCategoryDao.update(it)
+                val dbSubcategories = spendingSubcategoryDao.getSubcategoriesForCategorySync(it.id)
+                dbSubcategories.forEach {
+                    it.enabled = false
+                    spendingSubcategoryDao.update(it)
+                }
+            }
+            // Insert active categories and their subcategories
             categories.entries.forEachIndexed { categoryIndex, (categoryName, subcategories) ->
                 val existingCategory = spendingCategoryDao.getCategoryByNameSync(categoryName)
+                if (existingCategory != null) {
+                    existingCategory.enabled = true
+                    spendingCategoryDao.update(existingCategory)
+                }
                 val categoryId = existingCategory?.id
                     ?: spendingCategoryDao.insert(
                         SpendingCategory(
@@ -163,6 +188,10 @@ abstract class SparicaDatabase : RoomDatabase() {
                 subcategories.forEachIndexed { subcategoryIndex, subcategoryName ->
                     val existingSubcategory =
                         spendingSubcategoryDao.getSubcategoryByNameSync(subcategoryName, categoryId)
+                    if (existingSubcategory != null) {
+                        existingSubcategory.enabled = true
+                        spendingSubcategoryDao.update(existingSubcategory)
+                    }
                     if (existingSubcategory == null) {
                         spendingSubcategoryDao.insert(
                             SpendingSubcategory(

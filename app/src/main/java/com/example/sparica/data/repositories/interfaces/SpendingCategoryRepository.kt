@@ -4,7 +4,7 @@ import com.example.sparica.data.models.SpendingCategory
 import kotlinx.coroutines.flow.Flow
 
 interface SpendingCategoryRepository {
-    fun getAllCategories(): Flow<List<SpendingCategory>>
+    fun getAllEnabledCategories(): Flow<List<SpendingCategory>>
 
     fun getCategoryByName(name: String): Flow<SpendingCategory>
 

@@ -18,8 +18,8 @@ interface SpendingCategoryDao {
     @Insert
     suspend fun insert(category: SpendingCategory):Long
 
-    @Query("Select * from spending_category order by `order`")
-    fun getAllCategories(): Flow<List<SpendingCategory>>
+    @Query("Select * from spending_category where enabled=1 order by `order`")
+    fun getAllEnabledCategories(): Flow<List<SpendingCategory>>
 
     @Query("Select * from spending_category order by `order`")
     suspend fun getAllCategoriesSync(): List<SpendingCategory>

@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 class SpendingCategoryRepositoryImpl(
     private val spendingCategoryDao: SpendingCategoryDao
 ) : SpendingCategoryRepository {
-    override fun getAllCategories(): Flow<List<SpendingCategory>> =
-        spendingCategoryDao.getAllCategories()
+    override fun getAllEnabledCategories(): Flow<List<SpendingCategory>> =
+        spendingCategoryDao.getAllEnabledCategories()
 
     override fun getCategoryByName(name: String): Flow<SpendingCategory> =
         spendingCategoryDao.getCategoryByName(name)

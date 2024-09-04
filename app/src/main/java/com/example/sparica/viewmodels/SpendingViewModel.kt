@@ -65,7 +65,7 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             // Fetch categories and then fetch corresponding subcategories
             val categories =
-                spendingCategoryRepository.getAllCategories().firstOrNull() ?: emptyList()
+                spendingCategoryRepository.getAllEnabledCategories().firstOrNull() ?: emptyList()
             Log.d("SpendingViewModel", "Fetched categories: $categories")
             _allCategories.value = categories
 
@@ -74,7 +74,7 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
             // Fetch subcategories for each category sequentially
             categories.forEach { category ->
                 val subcategories =
-                    spendingSubcategoryRepository.getSubcategoriesForCategory(category.id)
+                    spendingSubcategoryRepository.getSubcategoriesForCategoryEnabled(category.id)
                         .firstOrNull() ?: emptyList()
                 subcategoryMap[category] = subcategories
                 Log.d(

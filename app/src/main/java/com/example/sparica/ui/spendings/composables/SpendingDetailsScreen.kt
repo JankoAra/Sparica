@@ -256,7 +256,7 @@ fun SpendingDetailsScreen(
 
                                 // Display subcategories for the selected category
                                 editedCategory?.let { category ->
-                                    val categoryObject = categories.filter { cat->cat.id==category }.first()
+                                    val categoryObject = categories.filter { cat->cat.id==category }.firstOrNull()
                                     val subcategories = subcategoryMap[categoryObject] ?: emptyList()
                                     if (subcategories.isEmpty()) {
                                         editedSubcategory = null

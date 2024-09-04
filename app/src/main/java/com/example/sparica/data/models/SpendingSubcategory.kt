@@ -24,7 +24,9 @@ data class SpendingSubcategory(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val categoryId: Int, // Foreign key referencing SpendingCategory
-    var order:Int?=null
+    var order: Int? = null,
+    var enabled: Boolean = true,
+    val custom: Boolean = false
 ) : Parcelable {
     override fun toString(): String {
         return name

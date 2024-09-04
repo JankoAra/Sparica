@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 class SpendingSubcategoryRepositoryImpl(
     private val spendingSubcategoryDao: SpendingSubcategoryDao
 ) : SpendingSubcategoryRepository {
-    override fun getSubcategoriesForCategory(categoryId: Int): Flow<List<SpendingSubcategory>> =
-        spendingSubcategoryDao.getSubcategoriesForCategory(categoryId)
+    override fun getSubcategoriesForCategoryEnabled(categoryId: Int): Flow<List<SpendingSubcategory>> =
+        spendingSubcategoryDao.getSubcategoriesForCategoryEnabled(categoryId)
 
     override fun getSubcategoryById(id: Int): Flow<SpendingSubcategory> =
         spendingSubcategoryDao.getSubcategoryById(id)

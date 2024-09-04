@@ -28,14 +28,14 @@ import java.time.LocalDateTime
             entity = SpendingCategory::class,
             parentColumns = ["id"],
             childColumns = ["categoryID"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = SpendingSubcategory::class,
             parentColumns = ["id"],
             childColumns = ["subcategoryID"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
             onUpdate = ForeignKey.CASCADE
         ),
     ],

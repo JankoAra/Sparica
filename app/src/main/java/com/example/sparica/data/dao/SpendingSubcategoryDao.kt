@@ -17,8 +17,8 @@ interface SpendingSubcategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(subcategories: List<SpendingSubcategory>)
 
-    @Query("SELECT * FROM spending_subcategory WHERE categoryId = :categoryId order by `order`")
-    fun getSubcategoriesForCategory(categoryId: Int): Flow<List<SpendingSubcategory>>
+    @Query("SELECT * FROM spending_subcategory WHERE categoryId = :categoryId and enabled=1 order by `order`")
+    fun getSubcategoriesForCategoryEnabled(categoryId: Int): Flow<List<SpendingSubcategory>>
 
     @Query("SELECT * FROM spending_subcategory WHERE categoryId = :categoryId order by `order`")
     suspend fun getSubcategoriesForCategorySync(categoryId: Int): List<SpendingSubcategory>

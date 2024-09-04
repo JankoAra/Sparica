@@ -276,32 +276,32 @@ fun SingleBudgetScreen(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp) // Add horizontal padding to content
                     ) {
-                        item{
-                            Button(onClick = {
-                                if(spendingInfo.isNotEmpty()){
-                                    spendingInfo.forEach {
-                                        Log.d("SpendingsInfo", it.toString())
-                                    }
-                                }else{
-                                    Log.d("SpendingsInfo", "info is empty")
-                                }
-
-                            }) {
-                                Text(text = "Print info")
-                            }
-                            Button(onClick = {
-                                if(spendings.isNotEmpty()){
-                                    spendings.forEach {
-                                        Log.d("Spendings", it.toString())
-                                    }
-                                }else{
-                                    Log.d("Spendings", "spendings is empty")
-                                }
-
-                            }) {
-                                Text(text = "Print spendings")
-                            }
-                        }
+//                        item{
+//                            Button(onClick = {
+//                                if(spendingInfo.isNotEmpty()){
+//                                    spendingInfo.forEach {
+//                                        Log.d("SpendingsInfo", it.toString())
+//                                    }
+//                                }else{
+//                                    Log.d("SpendingsInfo", "info is empty")
+//                                }
+//
+//                            }) {
+//                                Text(text = "Print info")
+//                            }
+//                            Button(onClick = {
+//                                if(spendings.isNotEmpty()){
+//                                    spendings.forEach {
+//                                        Log.d("Spendings", it.toString())
+//                                    }
+//                                }else{
+//                                    Log.d("Spendings", "spendings is empty")
+//                                }
+//
+//                            }) {
+//                                Text(text = "Print spendings")
+//                            }
+//                        }
 
                         // Insert the form as the first item
                         item {
