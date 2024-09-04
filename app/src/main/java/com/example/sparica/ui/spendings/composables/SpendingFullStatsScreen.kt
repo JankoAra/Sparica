@@ -1,5 +1,6 @@
 package com.example.sparica.ui.spendings.composables
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -88,14 +89,16 @@ fun SpendingFullStatsScreen(
                     text = "Stats",
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                CurrencyPickerDropdown(
-                    selectedCurrencyState = selectedDisplayCurrency,
-                    onCurrencySelected = { selectedDisplayCurrency = it },
-                    currencies = Currency.entries
-                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                    CurrencyPickerDropdown(
+                        selectedCurrencyState = selectedDisplayCurrency,
+                        onCurrencySelected = { selectedDisplayCurrency = it },
+                        currencies = Currency.entries
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
             for (cat in spentPerCategory.keys) {

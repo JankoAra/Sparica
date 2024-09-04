@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -276,26 +275,6 @@ fun SingleBudgetScreen(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp) // Add horizontal padding to content
                     ) {
-//                        item{
-//                            Button(onClick = {
-//                                if(spendingInfo.isNotEmpty()){
-//                                    spendingInfo.forEach {
-//                                        Log.d("SpendingsInfo", it.toString())
-//                                    }
-//                                }else{
-//                                    Log.d("SpendingsInfo", "info is empty")
-//                                }
-//
-//                            }) {
-//                                Text(text = "Print info")
-//                            }
-//                            Button(onClick = {
-//                                println(categoryMap)
-//
-//                            }) {
-//                                Text(text = "Print map")
-//                            }
-//                        }
 
                         // Insert the form as the first item
                         item {
@@ -339,7 +318,8 @@ fun SingleBudgetScreen(
                         // Insert the list of spendings
                         items(
                             spendingInfo.subList(0, minOf(spendingInfo.size, 3)),
-                            key = { it.id }) { info ->
+                            key = { it.id }
+                        ) { info ->
                             val spending = extractSpendingFromInfo(info)
                             SwipeToDeleteContainer(
                                 item = spending,

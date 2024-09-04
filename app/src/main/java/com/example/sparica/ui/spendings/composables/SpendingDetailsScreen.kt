@@ -36,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sparica.data.models.Currency
 import com.example.sparica.data.models.Spending
-import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
 import com.example.sparica.data.query_objects.SpendingInfo
 import com.example.sparica.data.query_objects.extractSpendingFromInfo
@@ -150,14 +149,17 @@ fun SpendingDetailsScreen(
                             editedCurrency = info.currency
                         },
                         confirmButton = {
-                            Button(onClick = {
-                                spending.price = editedPrice.toDoubleOrNull() ?: 0.0
-                                spending.currency = editedCurrency
-                                updateSpending(spending)
-                                info.price = spending.price
-                                info.currency = spending.currency
-                                showDialogEditPrice = false
-                            }) {
+                            Button(
+                                onClick = {
+                                    spending.price = editedPrice.toDoubleOrNull() ?: 0.0
+                                    spending.currency = editedCurrency
+                                    updateSpending(spending)
+                                    info.price = spending.price
+                                    info.currency = spending.currency
+                                    showDialogEditPrice = false
+                                },
+                                enabled = editedPrice.toDoubleOrNull() != null
+                            ) {
                                 Text(text = "Change price")
                             }
                         },

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.example.sparica.ui.spendings.composables
 
 import androidx.compose.foundation.BorderStroke
@@ -46,7 +44,7 @@ fun SpendingListItem(
             0.0
         )
     }
-    var spending by rememberSaveable {
+    val spending by rememberSaveable {
         mutableStateOf(extractSpendingFromInfo(info))
     }
     LaunchedEffect(targetCurrency) {
@@ -69,7 +67,7 @@ fun SpendingListItemContent(
     convertedPrice: Double,
     targetCurrency: Currency
 ) {
-    var spending by rememberSaveable {
+    val spending by rememberSaveable {
         mutableStateOf(extractSpendingFromInfo(info))
     }
     TextButton(
