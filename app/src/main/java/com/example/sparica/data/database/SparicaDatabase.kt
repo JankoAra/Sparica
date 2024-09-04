@@ -26,6 +26,7 @@ import com.example.sparica.data.models.Spending
 import com.example.sparica.data.models.SpendingCategory
 import com.example.sparica.data.models.SpendingSubcategory
 import com.example.sparica.util.Converters
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +47,8 @@ abstract class SparicaDatabase : RoomDatabase() {
     companion object SparicaDatabaseProvider {
         @Volatile
         private var Instance: SparicaDatabase? = null
+
+        private val databaseInitialized = CompletableDeferred<Unit>()
 
         fun getDatabase(context: Context, scope: CoroutineScope): SparicaDatabase {
             return Instance ?: synchronized(this) {
@@ -71,9 +74,21 @@ abstract class SparicaDatabase : RoomDatabase() {
                                 it.spendingCategoryDao(),
                                 it.spendingSubcategoryDao()
                             )
+                            val categories = it.spendingCategoryDao().getAllCategoriesSync()
+                            categories.forEach { cat->
+                                Log.d("DB Category", cat.toString())
+                                val subs = it.spendingSubcategoryDao().getSubcategoriesForCategorySync(cat.id)
+                                subs.forEach {
+                                    Log.d("DB Subcategory", it.toString())
+                                }
+                            }
+                            databaseInitialized.complete(Unit)
                         }
                     }
             }
+        }
+        suspend fun waitForInitialization() {
+            databaseInitialized.await() // Wait for the database to be initialized
         }
 
         private class DatabaseCallback(
@@ -120,12 +135,6 @@ abstract class SparicaDatabase : RoomDatabase() {
                 "Medicine",
                 "etc"
             ),
-//            "Souvenirs" to listOf(
-//                "Personal",
-//                "Family",
-//                "Friends",
-//                "etc"
-//            ),
             "Attractions" to listOf(
                 "Museums",
                 "Games",

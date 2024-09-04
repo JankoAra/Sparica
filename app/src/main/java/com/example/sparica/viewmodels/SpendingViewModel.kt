@@ -63,6 +63,7 @@ class SpendingViewModel(application: Application) : AndroidViewModel(application
 
 
         viewModelScope.launch {
+            SparicaDatabase.waitForInitialization()
             // Fetch categories and then fetch corresponding subcategories
             val categories =
                 spendingCategoryRepository.getAllEnabledCategories().firstOrNull() ?: emptyList()

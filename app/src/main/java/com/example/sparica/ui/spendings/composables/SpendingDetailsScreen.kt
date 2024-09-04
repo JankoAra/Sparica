@@ -100,6 +100,7 @@ fun SpendingDetailsScreen(
                                 //spending.description = URLEncoder.encode(editedDescription, "UTF-8")
                                 spending.description = editedDescription
                                 updateSpending(spending)
+                                info.description = spending.description
                                 showDialogEditDescription = false
                             }) {
                                 Text(text = "Change description")
@@ -153,6 +154,8 @@ fun SpendingDetailsScreen(
                                 spending.price = editedPrice.toDoubleOrNull() ?: 0.0
                                 spending.currency = editedCurrency
                                 updateSpending(spending)
+                                info.price = spending.price
+                                info.currency = spending.currency
                                 showDialogEditPrice = false
                             }) {
                                 Text(text = "Change price")
@@ -227,6 +230,14 @@ fun SpendingDetailsScreen(
                                 spending.categoryID = editedCategory
                                 spending.subcategoryID = editedSubcategory
                                 updateSpending(spending)
+                                info.categoryID = spending.categoryID
+                                info.subcategoryID = spending.subcategoryID
+                                info.categoryName = categories.filter { it.id == info.categoryID }
+                                    .firstOrNull()?.name
+                                info.subcategoryName =
+                                    subcategoryMap[categories.filter { it.id == info.categoryID }
+                                        .firstOrNull()]?.filter { it.id == info.subcategoryID }
+                                        ?.firstOrNull()?.name
                                 showDialogEditCategory = false
                             }) {
                                 Text(text = "Change category")
@@ -250,14 +261,19 @@ fun SpendingDetailsScreen(
                                         editedCategory = it
                                         editedSubcategory = null
                                     },
-                                    labelProvider = { categories.filter { cat->cat.id==it }.first().name }
+                                    labelProvider = {
+                                        categories.filter { cat -> cat.id == it }.first().name
+                                    }
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 // Display subcategories for the selected category
                                 editedCategory?.let { category ->
-                                    val categoryObject = categories.filter { cat->cat.id==category }.firstOrNull()
-                                    val subcategories = subcategoryMap[categoryObject] ?: emptyList()
+                                    val categoryObject =
+                                        categories.filter { cat -> cat.id == category }
+                                            .firstOrNull()
+                                    val subcategories =
+                                        subcategoryMap[categoryObject] ?: emptyList()
                                     if (subcategories.isEmpty()) {
                                         editedSubcategory = null
                                         return@let
@@ -283,7 +299,10 @@ fun SpendingDetailsScreen(
                                         options = subcategories.map { it.id },
                                         selectedOption = editedSubcategory,
                                         onOptionSelected = { editedSubcategory = it },
-                                        labelProvider = { subcategories.filter { sub->sub.id==it }.first().name }
+                                        labelProvider = {
+                                            subcategories.filter { sub -> sub.id == it }
+                                                .first().name
+                                        }
                                     )
                                 }
                             }
@@ -342,6 +361,7 @@ fun SpendingDetailsScreen(
                             Button(onClick = {
                                 spending.date = editedDate
                                 updateSpending(spending)
+                                info.date = spending.date
                                 showDialogEditDatetime = false
                             }) {
                                 Text(text = "Change date and time")

@@ -18,9 +18,6 @@ data class SpendingCategory(
     var enabled: Boolean = true,
     val custom: Boolean = false
 ) : Parcelable {
-    override fun toString(): String {
-        return name
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,5 +30,9 @@ data class SpendingCategory(
 
     override fun hashCode(): Int {
         return name.hashCode()
+    }
+
+    override fun toString(): String {
+        return "SpendingCategory(id=$id, name='$name', order=$order, enabled=$enabled, custom=$custom)"
     }
 }

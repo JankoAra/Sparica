@@ -14,17 +14,17 @@ import java.time.LocalDateTime
 @Parcelize
 data class SpendingInfo(
     val id: Int,
-    val description: String,
-    val price: Double,
-    val categoryID: Int?,
-    val subcategoryID: Int?,
+    var description: String,
+    var price: Double,
+    var categoryID: Int?,
+    var subcategoryID: Int?,
     val budgetID: Int?,
-    val currency: Currency,
-    @Contextual val date: LocalDateTime,
+    var currency: Currency,
+    @Contextual var date: LocalDateTime,
     val deleted: Boolean,
     @Contextual val dateDeleted: LocalDate?,
-    val categoryName: String?,
-    val subcategoryName: String?
+    var categoryName: String?,
+    var subcategoryName: String?
 
 
 ) : Parcelable {

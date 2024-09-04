@@ -290,16 +290,10 @@ fun SingleBudgetScreen(
 //                                Text(text = "Print info")
 //                            }
 //                            Button(onClick = {
-//                                if(spendings.isNotEmpty()){
-//                                    spendings.forEach {
-//                                        Log.d("Spendings", it.toString())
-//                                    }
-//                                }else{
-//                                    Log.d("Spendings", "spendings is empty")
-//                                }
+//                                println(categoryMap)
 //
 //                            }) {
-//                                Text(text = "Print spendings")
+//                                Text(text = "Print map")
 //                            }
 //                        }
 
